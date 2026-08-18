@@ -119,7 +119,7 @@
     .grad-3 { background: linear-gradient(135deg, #d97706 0%, #ea580c 100%); }
     .grad-4 { background: linear-gradient(135deg, #e11d48 0%, #be123c 100%); }
 
-    /* Custom Table */
+    /* Custom Table Styling */
     .table-pro thead th {
       background-color: #f1f5f9;
       color: #475569;
@@ -338,10 +338,9 @@
     }
   </style>
 
-  <!-- Firebase Core, Firestore & Storage SDK -->
+  <!-- Firebase Core & Firestore SDK (Spark Plan Free Tier) -->
   <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-storage-compat.js"></script>
   
   <!-- Tesseract.js OCR Engine -->
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
@@ -386,10 +385,10 @@
           <i class="fa-solid fa-hospital-user fs-4" style="color: var(--primary-teal);"></i>
           <div>
             <h6 class="m-0 fw-bold">SITU Puskesmas</h6>
-            <small class="text-muted" style="font-size: 11px;">Administrasi &amp; Tata Usaha</small>
+            <small class="text-muted" style="font-size: 11px;">Administrasi &amp; Google Drive Storage</small>
           </div>
         </div>
-        <span class="badge bg-success-subtle text-success border border-success-subtle py-1 px-2" style="font-size: 10px;"><i class="fa-solid fa-circle fa-2xs me-1"></i>Sistem Online</span>
+        <span class="badge bg-success-subtle text-success border border-success-subtle py-1 px-2" style="font-size: 10px;"><i class="fa-brands fa-google-drive me-1"></i>Drive Ready</span>
       </div>
 
       <!-- Dashboard View -->
@@ -397,11 +396,11 @@
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
           <div>
             <h4 class="fw-bold m-0">Dashboard Tata Usaha</h4>
-            <p class="text-muted mb-0 small">Sistem Realtime, Cloud Storage &amp; AI OCR Scanner</p>
+            <p class="text-muted mb-0 small">Sistem Realtime Firestore &amp; Penyimpanan Dokumen Google Drive</p>
           </div>
           <div class="d-flex gap-2">
             <span class="badge bg-white text-secondary border px-3 py-2 rounded-3 d-flex align-items-center gap-2 shadow-sm">
-              <i class="fa-solid fa-shield-halved text-success"></i> Firebase Realtime Aktif
+              <i class="fa-brands fa-google-drive text-success"></i> Auto-Sync Drive Aktif
             </span>
           </div>
         </div>
@@ -473,30 +472,30 @@
           
           <div class="col-lg-5">
             <div class="card-pro p-4 h-100">
-              <h6 class="fw-bold mb-3"><i class="fa-solid fa-camera-viewfinder me-2 text-warning"></i>Fitur Kamera Pintar &amp; Panduan</h6>
+              <h6 class="fw-bold mb-3"><i class="fa-brands fa-google-drive me-2 text-warning"></i>Penyimpanan Google Drive</h6>
               <div class="accordion accordion-flush" id="accGuide">
                 <div class="accordion-item">
                   <h2 class="accordion-header">
-                    <button class="accordion-button collapsed px-0 py-2 small fw-semibold" data-bs-target="#g1" data-bs-toggle="collapse">1. Pindai Berkas &amp; Auto-Fill</button>
+                    <button class="accordion-button collapsed px-0 py-2 small fw-semibold" data-bs-target="#g1" data-bs-toggle="collapse">1. Auto-Upload ke Folder Drive</button>
                   </h2>
                   <div class="accordion-collapse collapse" id="g1">
-                    <div class="accordion-body px-0 small text-muted">Arahkan kamera ke No Surat, Tanggal, atau Perihal dokumen fisik. AI OCR akan otomatis mengisi formulir dan melampirkan fotonya ke Firebase Storage.</div>
+                    <div class="accordion-body px-0 small text-muted">Setiap file lampiran atau foto jepretan kamera OCR langsung disimpan otomatis ke folder Google Drive Puskesmas tanpa batas akun berbayar.</div>
                   </div>
                 </div>
                 <div class="accordion-item">
                   <h2 class="accordion-header">
-                    <button class="accordion-button collapsed px-0 py-2 small fw-semibold" data-bs-target="#g2" data-bs-toggle="collapse">2. Keamanan Sensor Kamera (Smart Safe)</button>
+                    <button class="accordion-button collapsed px-0 py-2 small fw-semibold" data-bs-target="#g2" data-bs-toggle="collapse">2. Pindai Dokumen &amp; Kamera Pintar</button>
                   </h2>
                   <div class="accordion-collapse collapse" id="g2">
-                    <div class="accordion-body px-0 small text-muted">Sensor kamera perangkat otomatis dinonaktifkan (mati) saat jendela scan ditutup, tombol batal diklik, atau saat pengguna beralih aplikasi.</div>
+                    <div class="accordion-body px-0 small text-muted">Gunakan tombol kamera OCR untuk mengekstrak Nomor Surat, Tanggal, dan Perihal. Kamera otomatis nonaktif saat modal ditutup.</div>
                   </div>
                 </div>
                 <div class="accordion-item">
                   <h2 class="accordion-header">
-                    <button class="accordion-button collapsed px-0 py-2 small fw-semibold" data-bs-target="#g3" data-bs-toggle="collapse">3. Cetak Resmi Kop &amp; Barcode</button>
+                    <button class="accordion-button collapsed px-0 py-2 small fw-semibold" data-bs-target="#g3" data-bs-toggle="collapse">3. Cetak Kop Surat &amp; Barcode</button>
                   </h2>
                   <div class="accordion-collapse collapse" id="g3">
-                    <div class="accordion-body px-0 small text-muted">Cetak lembar SPT (Surat Keluar) diformat Portrait lengkap dengan Barcode Keaslian, sementara tabel rekapitulasi diformat Landscape.</div>
+                    <div class="accordion-body px-0 small text-muted">Cetak SPT/Surat Keluar diformat Portrait lengkap dengan Barcode Keaslian, sedangkan tabel rekapitulasi diformat Landscape.</div>
                   </div>
                 </div>
               </div>
@@ -539,10 +538,14 @@
       <div class="view-section d-none animate__animated animate__fadeIn" id="view-pengaturan">
         <div class="card-pro p-4">
           <h4 class="fw-bold mb-1"><i class="fa-solid fa-sliders me-2" style="color: var(--primary-teal);"></i>Profil Instansi Puskesmas</h4>
-          <p class="text-muted small mb-4">Pengaturan Kop Surat, Nama Pejabat Penandatangan, dan Tautan Terkait</p>
+          <p class="text-muted small mb-4">Pengaturan Kop Surat, Pejabat Penandatangan, dan Google Drive Endpoint</p>
 
           <form id="formSettings" onsubmit="saveSettings(event)">
             <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label small fw-bold">Google Apps Script Web App URL (Drive Upload Bridge)</label>
+                <input class="form-control" id="cfg_gas_url" placeholder="https://script.google.com/macros/s/.../exec" required type="url"/>
+              </div>
               <div class="col-md-6">
                 <label class="form-label small fw-bold">Pemerintah Daerah / Dinas Kesehatan</label>
                 <input class="form-control" id="cfg_daerah" placeholder="PEMERINTAH KABUPATEN KOTABARU / DINAS KESEHATAN" required type="text"/>
@@ -610,7 +613,7 @@
     <a onclick="switchTab('pengaturan')"><i class="fa-solid fa-sliders"></i><span>Profil</span></a>
   </div>
 
-  <!-- Modal Input Data & File Upload & OCR -->
+  <!-- Modal Input Data & Google Drive File Upload & OCR -->
   <div class="modal fade" id="crudModal" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered">
       <div class="modal-content border-0 shadow rounded-4">
@@ -627,27 +630,28 @@
           
           <div class="alert alert-success d-none py-2 px-3 small rounded-3 mb-3 d-flex align-items-center gap-2" id="ocrSuccessAlert">
             <i class="fa-solid fa-circle-check text-success"></i>
-            <div>Data berhasil diekstrak otomatis dari kamera OCR! Silakan cek kolom di bawah.</div>
+            <div>Data berhasil diekstrak otomatis dari kamera OCR!</div>
           </div>
 
           <form id="formDynamic" onsubmit="handleSingleSave(event)">
             <input id="dyn_id" type="hidden"/>
             <div class="row g-3" id="dynamicFormFields"></div>
             
+            <!-- Upload ke Google Drive Otomatis -->
             <div class="col-12 mt-3 p-3 bg-light rounded-3 border" id="uploadFileSection">
               <label class="form-label small fw-bold text-teal d-flex align-items-center gap-1">
-                <i class="fa-solid fa-cloud-arrow-up"></i> Lampiran Berkas / Dokumen Fisik
+                <i class="fa-brands fa-google-drive"></i> Upload Berkas Fisik ke Google Drive (Opsional)
               </label>
               <input class="form-control form-control-sm" id="inp_file_upload" accept=".pdf,.doc,.docx,.xls,.xlsx,image/png,image/jpeg" type="file"/>
               <div class="mt-1 d-flex justify-content-between align-items-center">
-                <small class="text-muted" style="font-size: 11px;">Mendukung PDF, Word, Excel, atau Foto Kamera.</small>
+                <small class="text-muted" style="font-size: 11px;">Mendukung PDF, Word, Excel, atau Foto Kamera (Tersimpan di Folder Drive PKM).</small>
                 <span class="badge bg-secondary-subtle text-secondary small d-none" id="cameraCapturedBadge"><i class="fa-solid fa-camera me-1"></i>Foto Kamera Siap</span>
               </div>
             </div>
 
             <div class="mt-4 text-end">
               <button class="btn btn-light rounded-3 px-3 me-2" data-bs-dismiss="modal" type="button">Batal</button>
-              <button class="btn text-white rounded-3 px-4" id="btnSubmitForm" style="background:#0f766e;" type="submit">Simpan Data &amp; Dokumen</button>
+              <button class="btn text-white rounded-3 px-4" id="btnSubmitForm" style="background:#0f766e;" type="submit">Simpan Data &amp; Berkas</button>
             </div>
           </form>
         </div>
@@ -754,7 +758,7 @@
 
   <script>
     // ==========================================
-    // 1. KREDENSIAL FIREBASE & DEFAULT PROFILE
+    // 1. KREDENSIAL FIREBASE & GOOGLE DRIVE APPS SCRIPT
     // ==========================================
     const FIREBASE_CONFIG = {
       apiKey: "AIzaSyAO0S1YaKqBc1ldQelL-GRcZCAf4eIf69Y",
@@ -762,11 +766,11 @@
       projectId: "situ-puskesmas",
       storageBucket: "situ-puskesmas.firebasestorage.app",
       messagingSenderId: "882799652149",
-      appId: "1:882799652149:web:961003a0875cc5a316307c",
-      measurementId: "G-LYNRF7NT2Q"
+      appId: "1:882799652149:web:961003a0875cc5a316307c"
     };
 
     const DEFAULT_PROFILE = {
+      gasUrl: "https://script.google.com/macros/s/AKfycbzKJQNMM6d9VU5-FdpBnjZVsWnUH5n2rfJ-ZCv959ngusssWtbKhloHDmBEdyMFzOoCfA/exec",
       daerah: "PEMERINTAH KABUPATEN KOTABARU / DINAS KESEHATAN",
       puskesmas: "UPTD PUSKESMAS SAMPANAHAN",
       alamat: "Jl. Raya Gunung Batu No. 01, Kec. Sampanahan, Email: pkm.sampanahan@gmail.com",
@@ -784,7 +788,6 @@
     // 2. STATE & SCHEMAS
     // ==========================================
     let db = null;
-    let storage = null;
     let SITU_DATA = { SuratMasuk:[], SuratKeluar:[], BukuTamu:[], AgendaPuskesmas:[], PegawaiNakes:[], InventarisAset:[] };
     let CURRENT_TAB = "dashboard";
     let chartInstance = null;
@@ -799,13 +802,13 @@
         collection: "SuratMasuk",
         title: "Arsip Surat Masuk",
         columns: ["NoSurat", "TglSurat", "TglTerima", "Pengirim", "Perihal", "FileUrl"],
-        labels: ["No Surat", "Tgl Surat", "Tgl Diterima", "Pengirim / Dinas", "Perihal", "Tautan Dokumen / File"]
+        labels: ["No Surat", "Tgl Surat", "Tgl Diterima", "Pengirim / Dinas", "Perihal", "Tautan Berkas Drive"]
       },
       "surat-keluar": {
         collection: "SuratKeluar",
         title: "Arsip Surat Keluar / SPT",
         columns: ["NoSurat", "TglSurat", "Tujuan", "Perihal", "IsiRingkas", "Penandatangan", "FileUrl"],
-        labels: ["No Surat / SPT", "Tgl Surat", "Tujuan", "Perihal", "Isi Tugas / Ringkasan", "Penandatangan", "Tautan Dokumen / File"]
+        labels: ["No Surat / SPT", "Tgl Surat", "Tujuan", "Perihal", "Isi Tugas / Ringkasan", "Penandatangan", "Tautan Berkas Drive"]
       },
       "buku-tamu": {
         collection: "BukuTamu",
@@ -823,13 +826,13 @@
         collection: "PegawaiNakes",
         title: "Pegawai & Tenaga Kesehatan",
         columns: ["NIP_NRPTT", "Nama", "Profesi", "RuanganUnit", "PangkatGol", "NoSTR_SIP", "TMT", "FileUrl"],
-        labels: ["NIP / NRPTT", "Nama & Gelar", "Profesi (Dokter/Perawat/Bidan/TU)", "Unit (UGD/Rawat Inap/Poli)", "Pangkat/Gol", "No STR / SIP", "TMT", "File SK / STR"]
+        labels: ["NIP / NRPTT", "Nama & Gelar", "Profesi (Dokter/Perawat/Bidan/TU)", "Unit (UGD/Rawat Inap/Poli)", "Pangkat/Gol", "No STR / SIP", "TMT", "File SK / STR (Drive)"]
       },
       "aset": {
         collection: "InventarisAset",
         title: "Inventaris Sarpras & Alkes",
         columns: ["KodeBarang", "NamaBarang", "Kategori", "Jumlah", "Kondisi", "LokasiRuang", "FileUrl"],
-        labels: ["Kode Barang", "Nama Barang / Alkes", "Kategori (Alkes/Elektronik/Kendaraan)", "Jumlah", "Kondisi", "Lokasi Ruang", "Foto / Dokumen Aset"]
+        labels: ["Kode Barang", "Nama Barang / Alkes", "Kategori (Alkes/Elektronik/Kendaraan)", "Jumlah", "Kondisi", "Lokasi Ruang", "Foto Aset (Drive)"]
       }
     };
 
@@ -858,7 +861,6 @@
           firebase.initializeApp(FIREBASE_CONFIG);
         }
         db = firebase.firestore();
-        storage = firebase.storage();
         attachRealtimeListeners();
       } catch (err) {
         console.warn("Firestore running in preview mode:", err);
@@ -991,16 +993,10 @@
             let badgeClass = val === "Baik" ? "badge-teal" : (val.includes("Ringan") ? "badge-amber" : "badge-rose");
             tr += `<td><span class="badge-pill ${badgeClass}">${val}</span></td>`;
           } else if (col === "FileUrl") {
-            if (val && val !== "-") {
-              let iconType = "fa-file-lines";
-              if (val.includes(".pdf")) iconType = "fa-file-pdf text-danger";
-              else if (val.includes(".doc") || val.includes(".docx")) iconType = "fa-file-word text-primary";
-              else if (val.includes(".xls") || val.includes(".xlsx")) iconType = "fa-file-excel text-success";
-              else if (val.includes(".jpg") || val.includes(".png") || val.includes(".jpeg") || val.includes("data:image")) iconType = "fa-file-image text-warning";
-
-              tr += `<td><a href="${val}" target="_blank" class="badge bg-light text-dark border text-decoration-none py-2 px-3 rounded-3"><i class="fa-solid ${iconType} me-1"></i> Buka Berkas</a></td>`;
+            if (val && val.startsWith("http")) {
+              tr += `<td><a href="${val}" target="_blank" class="badge bg-light text-primary border text-decoration-none py-2 px-3 rounded-3"><i class="fa-brands fa-google-drive me-1 text-success"></i> Buka Berkas</a></td>`;
             } else {
-              tr += `<td class="text-muted small">Tidak ada file</td>`;
+              tr += `<td>${val}</td>`;
             }
           } else {
             tr += `<td>${val}</td>`;
@@ -1031,10 +1027,11 @@
     }
 
     // ==========================================
-    // 6. KAMERA PINTAR & LIFECYCLE MANAGEMENT
+    // 6. KAMERA PINTAR & OCR LIFECYCLE MANAGEMENT
     // ==========================================
     function openCameraScanner() {
       capturedBlob = null;
+      document.getElementById("ocrSuccessAlert").classList.add("d-none");
       document.getElementById("cameraCapturedBadge").classList.add("d-none");
       
       const camModalEl = document.getElementById("cameraModal");
@@ -1124,22 +1121,17 @@
       
       const lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
       
-      // 1. Ekstraksi Nomor Surat
       let noSuratMatch = rawText.match(/(?:nomor|no|nomor\s*surat|nomor\s*:\s*|no\s*:\s*)\s*[:.\s]?\s*([A-Za-z0-9\.\-\_\/]{4,50})/i);
-      if (!noSuratMatch) {
-        noSuratMatch = rawText.match(/\b\d{3,4}\/[A-Za-z0-9\.\-]+\/\d{4}\b/i);
-      }
+      if (!noSuratMatch) noSuratMatch = rawText.match(/\b\d{3,4}\/[A-Za-z0-9\.\-]+\/\d{4}\b/i);
       if (noSuratMatch && document.getElementById("inp_NoSurat")) {
         document.getElementById("inp_NoSurat").value = noSuratMatch[1] ? noSuratMatch[1].trim() : noSuratMatch[0].trim();
       }
 
-      // 2. Ekstraksi Perihal / Hal
       let perihalMatch = rawText.match(/(?:perihal|hal|lampiran|tentang)\s*[:.\s]\s*([^\n\r]+)/i);
       if (perihalMatch && document.getElementById("inp_Perihal")) {
         document.getElementById("inp_Perihal").value = perihalMatch[1].replace(/[:\-]/g, '').trim();
       }
 
-      // 3. Ekstraksi Tanggal Surat
       let tglMatch = rawText.match(/(\d{1,2})[\s\-\/\.](Januari|Februari|Maret|April|Mei|Juni|Juli|Agustus|September|Oktober|November|Desember|\d{1,2})[\s\-\/\.](\d{4})/i);
       if (tglMatch) {
         let day = tglMatch[1].padStart(2, '0');
@@ -1152,24 +1144,19 @@
           'juli': '07', 'agustus': '08', 'september': '09', 'oktober': '10', 'november': '11', 'desember': '12'
         };
 
-        if (bulanMap[monthStr]) {
-          month = bulanMap[monthStr];
-        } else if (!isNaN(parseInt(monthStr))) {
-          month = monthStr.padStart(2, '0');
-        }
+        if (bulanMap[monthStr]) month = bulanMap[monthStr];
+        else if (!isNaN(parseInt(monthStr))) month = monthStr.padStart(2, '0');
 
         const formattedDate = `${year}-${month}-${day}`;
         if (document.getElementById("inp_TglSurat")) document.getElementById("inp_TglSurat").value = formattedDate;
         if (document.getElementById("inp_Tanggal")) document.getElementById("inp_Tanggal").value = formattedDate;
       }
 
-      // 4. Ekstraksi Pengirim
       let pengirimMatch = rawText.match(/(?:dinas|badan|uptd|kementerian|puskesmas|kantor|bupati|sekretariat)\s+([^\n\r]+)/i);
       if (pengirimMatch && document.getElementById("inp_Pengirim")) {
         document.getElementById("inp_Pengirim").value = pengirimMatch[0].substring(0, 50).trim();
       }
 
-      // 5. Ekstraksi NIP / SK
       let nipMatch = rawText.match(/(?:nip|nrptt|nik)\s*[:.\s]?\s*(\d{8,18})/i);
       if (nipMatch && document.getElementById("inp_NIP_NRPTT")) {
         document.getElementById("inp_NIP_NRPTT").value = nipMatch[1].trim();
@@ -1181,7 +1168,43 @@
     }
 
     // ==========================================
-    // 7. SAVE (WITH STORAGE & OCR PHOTO)
+    // 7. GOOGLE DRIVE UPLOAD BRIDGE (VIA APPS SCRIPT)
+    // ==========================================
+    async function uploadBlobToGoogleDrive(fileOrBlob, fileName) {
+      const s = JSON.parse(localStorage.getItem("SITU_PKM_SETTINGS") || JSON.stringify(DEFAULT_PROFILE));
+      const gasEndpoint = s.gasUrl || DEFAULT_PROFILE.gasUrl;
+
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = async () => {
+          const base64 = reader.result.split(',')[1];
+          const payload = {
+            base64: base64,
+            fileName: fileName,
+            mimeType: fileOrBlob.type || "image/jpeg"
+          };
+
+          try {
+            const response = await fetch(gasEndpoint, {
+              method: "POST",
+              body: JSON.stringify(payload)
+            });
+            const resData = await response.json();
+            if (resData.status === "success") {
+              resolve(resData.url);
+            } else {
+              reject(resData.message);
+            }
+          } catch (e) {
+            reject(e.toString());
+          }
+        };
+        reader.readAsDataURL(fileOrBlob);
+      });
+    }
+
+    // ==========================================
+    // 8. SAVE (WITH GOOGLE DRIVE & FIRESTORE)
     // ==========================================
     function openModalInput() {
       stopCameraStream();
@@ -1212,7 +1235,7 @@
         } else if (col === "IsiRingkas" || col === "Keperluan" || col === "Keterangan") {
           inputHtml = `<textarea class="form-control" name="${col}" id="inp_${col}" rows="2"></textarea>`;
         } else if (col === "FileUrl") {
-          inputHtml = `<input type="text" class="form-control" name="${col}" id="inp_${col}" placeholder="Link Drive atau otomatis terisi dari scan/upload">`;
+          inputHtml = `<input type="text" class="form-control" name="${col}" id="inp_${col}" placeholder="Link Drive (Otomatis terisi jika upload file)">`;
         } else {
           inputHtml = `<input type="text" class="form-control" name="${col}" id="inp_${col}" required>`;
         }
@@ -1253,44 +1276,38 @@
         payload[col] = formData.get(col) || "";
       });
 
-      // 1. Upload Foto Jepretan OCR jika tersedia
-      if (capturedBlob && storage) {
-        const fileName = `ocr_cam_${CURRENT_TAB}_${Date.now()}.jpg`;
-        const storageRef = storage.ref(`documents_situ/${fileName}`);
-
+      // 1. Upload Otomatis Foto Kamera OCR ke Google Drive jika ada
+      if (capturedBlob) {
         Swal.fire({
-          title: "Mengunggah Foto Hasil Pindai...",
+          title: "Mengunggah ke Google Drive...",
+          html: "Menyimpan foto pindaian ke folder Google Drive Puskesmas...",
           allowOutsideClick: false,
           didOpen: () => Swal.showLoading()
         });
 
         try {
-          const snapshot = await storageRef.put(capturedBlob);
-          payload.FileUrl = await snapshot.ref.getDownloadURL();
+          const driveUrl = await uploadBlobToGoogleDrive(capturedBlob, `OCR_${CURRENT_TAB}_${Date.now()}.jpg`);
+          payload.FileUrl = driveUrl;
         } catch (uploadErr) {
-          console.warn("Storage upload warning:", uploadErr);
+          console.warn("Drive upload warning:", uploadErr);
         }
       } 
-      // 2. Upload Berkas Lampiran Komputer/HP
-      else if (fileInput && fileInput.files.length > 0 && storage) {
+      // 2. Upload Otomatis File Dokumen Komputer/HP ke Google Drive jika ada
+      else if (fileInput && fileInput.files.length > 0) {
         const file = fileInput.files[0];
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${CURRENT_TAB}_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
-        const storageRef = storage.ref(`documents_situ/${fileName}`);
-
         Swal.fire({
-          title: "Mengunggah Lampiran...",
-          html: `Mengunggah file <b>${file.name}</b> ke Cloud Storage`,
+          title: "Mengunggah ke Google Drive...",
+          html: `Mengunggah berkas <b>${file.name}</b> ke Drive Puskesmas...`,
           allowOutsideClick: false,
           didOpen: () => Swal.showLoading()
         });
 
         try {
-          const uploadSnapshot = await storageRef.put(file);
-          payload.FileUrl = await uploadSnapshot.ref.getDownloadURL();
+          const driveUrl = await uploadBlobToGoogleDrive(file, `${CURRENT_TAB}_${Date.now()}_${file.name}`);
+          payload.FileUrl = driveUrl;
         } catch (uploadErr) {
           Swal.close();
-          return Swal.fire("Gagal Upload File", uploadErr.message, "error");
+          return Swal.fire("Gagal Upload Drive", uploadErr.toString(), "error");
         }
       }
 
@@ -1305,7 +1322,7 @@
         }
         Swal.close();
         bootstrap.Modal.getInstance(document.getElementById("crudModal")).hide();
-        Swal.fire({ icon: "success", title: "Berhasil", text: "Data dan berkas telah tersimpan aman.", timer: 1500, showConfirmButton: false });
+        Swal.fire({ icon: "success", title: "Berhasil", text: "Data dan berkas Drive telah tersimpan.", timer: 1500, showConfirmButton: false });
       } catch (err) {
         Swal.close();
         Swal.fire("Error", err.message, "error");
@@ -1334,7 +1351,7 @@
     }
 
     // ==========================================
-    // 8. BATCH UPLOAD EXCEL
+    // 9. BATCH UPLOAD EXCEL
     // ==========================================
     function openModalBatch() {
       new bootstrap.Modal(document.getElementById("batchModal")).show();
@@ -1387,10 +1404,11 @@
     }
 
     // ==========================================
-    // 9. SETTINGS & PROFILE MANAGEMENT
+    // 10. SETTINGS & PROFILE MANAGEMENT
     // ==========================================
     function loadSettingsToUI() {
       const s = JSON.parse(localStorage.getItem("SITU_PKM_SETTINGS") || JSON.stringify(DEFAULT_PROFILE));
+      document.getElementById("cfg_gas_url").value = s.gasUrl || DEFAULT_PROFILE.gasUrl;
       document.getElementById("cfg_daerah").value = s.daerah || "";
       document.getElementById("cfg_puskesmas").value = s.puskesmas || "";
       document.getElementById("cfg_alamat").value = s.alamat || "";
@@ -1414,6 +1432,7 @@
     function saveSettings(e) {
       e.preventDefault();
       const settings = {
+        gasUrl: document.getElementById("cfg_gas_url").value.trim(),
         daerah: document.getElementById("cfg_daerah").value,
         puskesmas: document.getElementById("cfg_puskesmas").value,
         alamat: document.getElementById("cfg_alamat").value,
@@ -1429,11 +1448,11 @@
 
       localStorage.setItem("SITU_PKM_SETTINGS", JSON.stringify(settings));
       loadSettingsToUI();
-      Swal.fire({ icon: "success", title: "Profil Tersimpan", text: "Pengaturan identitas puskesmas telah diperbarui.", timer: 1500, showConfirmButton: false });
+      Swal.fire({ icon: "success", title: "Profil Tersimpan", text: "Pengaturan identitas dan endpoint Drive telah diperbarui.", timer: 1500, showConfirmButton: false });
     }
 
     // ==========================================
-    // 10. HIGH-DEFINITION PRINT ENGINE
+    // 11. HIGH-DEFINITION PRINT ENGINE
     // ==========================================
     function setupPrintKop() {
       const s = JSON.parse(localStorage.getItem("SITU_PKM_SETTINGS") || JSON.stringify(DEFAULT_PROFILE));
