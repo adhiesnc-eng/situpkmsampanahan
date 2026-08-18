@@ -518,10 +518,10 @@
                 </div>
                 <div class="accordion-item">
                   <h2 class="accordion-header">
-                    <button class="accordion-button collapsed px-0 py-2 small fw-semibold" data-bs-target="#g2" data-bs-toggle="collapse">2. Status Toast Otomatis</button>
+                    <button class="accordion-button collapsed px-0 py-2 small fw-semibold" data-bs-target="#g2" data-bs-toggle="collapse">2. Urutan Presisi dari Spreadsheet</button>
                   </h2>
                   <div class="accordion-collapse collapse" id="g2">
-                    <div class="accordion-body px-0 small text-muted">Kotak notifikasi di pojok layar akan menampilkan status <i>"Sedang Mengunggah &amp; Menyimpan..."</i> lalu otomatis berubah hijau saat selesai.</div>
+                    <div class="accordion-body px-0 small text-muted">Susunan daftar nama pegawai diurutkan presisi baris per baris sesuai nomor urut yang tertera di Google Sheets.</div>
                   </div>
                 </div>
                 <div class="accordion-item">
@@ -912,7 +912,6 @@
         `;
       }
 
-      // Hilangkan otomatis dalam 3.5 detik
       setTimeout(() => {
         toast.style.transition = "opacity 0.4s ease, transform 0.4s ease";
         toast.style.opacity = "0";
@@ -961,6 +960,16 @@
           snapshot.forEach(doc => {
             list.push({ id: doc.id, ...doc.data() });
           });
+
+          // Urutkan PegawaiNakes berdasarkan indeks baris Google Sheets (Urutan)
+          if (colName === "PegawaiNakes") {
+            list.sort((a, b) => {
+              const urutA = a.Urutan !== undefined ? Number(a.Urutan) : 9999;
+              const urutB = b.Urutan !== undefined ? Number(b.Urutan) : 9999;
+              return urutA - urutB;
+            });
+          }
+
           SITU_DATA[colName] = list;
 
           if (CURRENT_TAB === "dashboard") renderDashboard();
@@ -1354,7 +1363,6 @@
       const docId = document.getElementById("dyn_id").value;
       const fileInput = document.getElementById("inp_file_upload");
 
-      // Kloning data dan file agar modal bisa langsung tertutup
       let payload = { updatedAt: new Date().toISOString() };
       config.columns.forEach(col => {
         payload[col] = formData.get(col) || "";
@@ -1365,27 +1373,19 @@
       const targetCollection = config.collection;
       const taskId = "TASK-" + Date.now();
 
-      // 1. LANGSUNG TUTUP MODAL INSTAN TANPA LOADING
       bootstrap.Modal.getInstance(document.getElementById("crudModal")).hide();
-
-      // 2. MUNCULKAN TOAST STATUS LATAR BELAKANG
       createBackgroundTaskToast(taskId, `Menyimpan data ${config.title}...`);
 
-      // 3. JALANKAN PROSES UPLOAD & FIRESTORE DI LATAR BELAKANG (ASYNC BACKGROUND)
       (async () => {
         try {
-          // A. Upload Foto OCR jika ada
           if (cameraBlobToUpload) {
             const driveUrl = await uploadBlobToGoogleDrive(cameraBlobToUpload, `OCR_${CURRENT_TAB}_${Date.now()}.jpg`);
             payload.FileUrl = driveUrl;
-          } 
-          // B. Upload Berkas Komputer/HP jika ada
-          else if (fileToUpload) {
+          } else if (fileToUpload) {
             const driveUrl = await uploadBlobToGoogleDrive(fileToUpload, `${CURRENT_TAB}_${Date.now()}_${fileToUpload.name}`);
             payload.FileUrl = driveUrl;
           }
 
-          // C. Simpan ke Firestore
           if (docId) {
             await db.collection(targetCollection).doc(docId).update(payload);
           } else {
@@ -1393,7 +1393,6 @@
             await db.collection(targetCollection).add(payload);
           }
 
-          // D. Perbarui toast menjadi Sukses
           updateBackgroundTaskToast(taskId, true, "Data & berkas Drive berhasil tersinkron.");
         } catch (err) {
           console.error("Background task error:", err);
@@ -1459,9 +1458,9 @@
           const colRef = db.collection(SCHEMA[CURRENT_TAB].collection);
           const timestamp = new Date().toISOString();
 
-          rows.forEach(item => {
+          rows.forEach((item, idx) => {
             const docRef = colRef.doc();
-            batch.set(docRef, { ...item, createdAt: timestamp, updatedAt: timestamp });
+            batch.set(docRef, { ...item, Urutan: idx + 1, createdAt: timestamp, updatedAt: timestamp });
           });
 
           await batch.commit();
