@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="utf-8"/>
-  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
   <title>SITU Pro - UPTD Puskesmas</title>
   
   <!-- Fonts & Core CSS -->
@@ -23,12 +23,16 @@
       --card-border: rgba(226, 232, 240, 0.8);
     }
 
-    * { font-family: 'Plus Jakarta Sans', sans-serif; }
+    * { 
+      font-family: 'Plus Jakarta Sans', sans-serif; 
+      -webkit-tap-highlight-color: transparent;
+    }
 
     body {
       background-color: var(--bg-surface);
       color: #0f172a;
       overflow-x: hidden;
+      touch-action: pan-y; /* Membantu deteksi swipe horizontal di HP */
     }
 
     /* Screen Lock Overlay */
@@ -84,9 +88,6 @@
       font-size: 1.15rem;
       padding: 4px;
     }
-    .auth-eye-btn:hover {
-      color: var(--primary-teal);
-    }
 
     .main-wrapper {
       display: flex;
@@ -135,10 +136,27 @@
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     }
 
-    /* Content Area */
+    /* Content Area & Swipe Anim */
     .content-area {
       flex: 1;
       padding: 28px 32px 90px 32px;
+      min-width: 0;
+    }
+
+    .slide-left {
+      animation: slideInLeft 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .slide-right {
+      animation: slideInRight 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes slideInLeft {
+      from { opacity: 0; transform: translateX(40px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(-40px); }
+      to { opacity: 1; transform: translateX(0); }
     }
 
     .card-pro {
@@ -146,11 +164,6 @@
       border: 1px solid var(--card-border);
       border-radius: 20px;
       box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.03), 0 8px 10px -6px rgba(15, 23, 42, 0.02);
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
-    }
-    .card-pro:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 20px 30px -10px rgba(15, 23, 42, 0.07);
     }
 
     .stat-card-gradient {
@@ -186,19 +199,19 @@
       letter-spacing: 0.5px;
       border-bottom: 2px solid #e2e8f0;
       padding: 14px 16px;
+      white-space: nowrap;
     }
     .table-pro tbody td {
       padding: 14px 16px;
       font-size: 0.88rem;
       vertical-align: middle;
       border-bottom: 1px solid #f1f5f9;
+      white-space: nowrap;
     }
-    .table-pro tbody tr:hover { background-color: #f8fafc; }
 
-    /* Live Search Input */
     .search-input-group {
       position: relative;
-      min-width: 260px;
+      min-width: 240px;
     }
     .search-input-group i {
       position: absolute;
@@ -304,11 +317,6 @@
       align-items: center;
       gap: 14px;
       min-width: 290px;
-      animation: fadeInUp 0.3s ease;
-    }
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
     }
 
     .skeleton {
@@ -461,7 +469,7 @@
     </div>
   </div>
 
-  <div class="main-wrapper">
+  <div class="main-wrapper" id="appMainWrapper">
     
     <!-- Floating Background Task Indicator Container -->
     <div class="bg-task-container" id="bgTaskContainer"></div>
@@ -499,7 +507,7 @@
     </div>
 
     <!-- Main Content Area -->
-    <div class="content-area">
+    <div class="content-area" id="contentArea">
       
       <!-- Top Mobile Header -->
       <div class="d-lg-none d-flex justify-content-between align-items-center mb-3 bg-white p-3 rounded-4 shadow-sm">
@@ -507,7 +515,7 @@
           <i class="fa-solid fa-hospital-user fs-4" style="color: var(--primary-teal);"></i>
           <div>
             <h6 class="m-0 fw-bold">SITU Puskesmas</h6>
-            <small class="text-muted" style="font-size: 11px;">Tata Usaha &amp; Google Drive</small>
+            <small class="text-muted" style="font-size: 11px;"><i class="fa-solid fa-arrows-left-right me-1 text-teal"></i>Geser layar untuk ganti menu</small>
           </div>
         </div>
         <button class="btn btn-sm btn-light border rounded-3 text-danger" onclick="logoutApp()" title="Kunci Aplikasi">
@@ -516,7 +524,7 @@
       </div>
 
       <!-- Dashboard View -->
-      <div class="view-section animate__animated animate__fadeIn" id="view-dashboard">
+      <div class="view-section" id="view-dashboard">
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
           <div>
             <h4 class="fw-bold m-0">Dashboard Tata Usaha</h4>
@@ -596,30 +604,22 @@
           
           <div class="col-lg-5">
             <div class="card-pro p-4 h-100">
-              <h6 class="fw-bold mb-3"><i class="fa-solid fa-bolt me-2 text-warning"></i>Proses Latar Belakang Cepat</h6>
+              <h6 class="fw-bold mb-3"><i class="fa-solid fa-mobile-screen-button me-2 text-teal"></i>Fitur Geser Layar HP (Touch Swipe)</h6>
               <div class="accordion accordion-flush" id="accGuide">
                 <div class="accordion-item">
                   <h2 class="accordion-header">
-                    <button class="accordion-button collapsed px-0 py-2 small fw-semibold" data-bs-target="#g1" data-bs-toggle="collapse">1. Simpan Instan Tanpa Loading</button>
+                    <button class="accordion-button collapsed px-0 py-2 small fw-semibold" data-bs-target="#g1" data-bs-toggle="collapse">1. Geser Kiri / Kanan di HP</button>
                   </h2>
                   <div class="accordion-collapse collapse" id="g1">
-                    <div class="accordion-body px-0 small text-muted">Saat form disimpan, modal langsung tertutup seketika. Proses upload ke Google Drive berjalan mandiri di latar belakang.</div>
+                    <div class="accordion-body px-0 small text-muted">Usap layar smartphone ke kiri atau ke kanan untuk berpindah menu dengan cepat (Dashboard, Surat Masuk, Surat Keluar, Nakes, Sarpras, Profil).</div>
                   </div>
                 </div>
                 <div class="accordion-item">
                   <h2 class="accordion-header">
-                    <button class="accordion-button collapsed px-0 py-2 small fw-semibold" data-bs-target="#g2" data-bs-toggle="collapse">2. Urutan Presisi dari Spreadsheet</button>
+                    <button class="accordion-button collapsed px-0 py-2 small fw-semibold" data-bs-target="#g2" data-bs-toggle="collapse">2. Proteksi Tabel</button>
                   </h2>
                   <div class="accordion-collapse collapse" id="g2">
-                    <div class="accordion-body px-0 small text-muted">Susunan daftar nama pegawai diurutkan presisi baris per baris sesuai nomor urut yang tertera di Google Sheets.</div>
-                  </div>
-                </div>
-                <div class="accordion-item">
-                  <h2 class="accordion-header">
-                    <button class="accordion-button collapsed px-0 py-2 small fw-semibold" data-bs-target="#g3" data-bs-toggle="collapse">3. Sandi Permanen</button>
-                  </h2>
-                  <div class="accordion-collapse collapse" id="g3">
-                    <div class="accordion-body px-0 small text-muted">Sandi cukup dimasukkan satu kali pada saat pertama kali menggunakan perangkat.</div>
+                    <div class="accordion-body px-0 small text-muted">Saat Anda menggeser kolom tabel data secara horizontal, menu tidak akan berpindah secara tidak sengaja.</div>
                   </div>
                 </div>
               </div>
@@ -629,7 +629,7 @@
       </div>
 
       <!-- Generic Data Grid View -->
-      <div class="view-section d-none animate__animated animate__fadeIn" id="view-crud">
+      <div class="view-section d-none" id="view-crud">
         <div class="card-pro p-4">
           <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
             <div>
@@ -659,7 +659,7 @@
       </div>
 
       <!-- Settings View -->
-      <div class="view-section d-none animate__animated animate__fadeIn" id="view-pengaturan">
+      <div class="view-section d-none" id="view-pengaturan">
         <div class="card-pro p-4">
           <h4 class="fw-bold mb-1"><i class="fa-solid fa-sliders me-2" style="color: var(--primary-teal);"></i>Profil Instansi Puskesmas</h4>
           <p class="text-muted small mb-4">Pengaturan Kop Surat, Pejabat Penandatangan, dan Google Drive Endpoint</p>
@@ -884,7 +884,7 @@
     // ==========================================
     // 0. SISTEM KEAMANAN SANDI & REMEMBER LOGIN
     // ==========================================
-    const APP_PASSWORD = "kasatmata"; // Sandi Utama Masuk Aplikasi
+    const APP_PASSWORD = "kasatmata";
 
     function checkAuthStatus() {
       const isAuth = localStorage.getItem("SITU_AUTH_PERSISTENT");
@@ -966,13 +966,16 @@
     };
 
     // ==========================================
-    // 2. STATE & SCHEMAS
+    // 2. STATE & SCHEMAS & TAB FLOW FOR SWIPE
     // ==========================================
     let db = null;
     let SITU_DATA = { SuratMasuk:[], SuratKeluar:[], BukuTamu:[], AgendaPuskesmas:[], PegawaiNakes:[], InventarisAset:[] };
     let CURRENT_TAB = "dashboard";
     let chartInstance = null;
     
+    // Urutan Tab Navigasi Swipe
+    const TAB_FLOW = ["dashboard", "surat-masuk", "surat-keluar", "buku-tamu", "agenda", "pegawai", "aset", "pengaturan"];
+
     // Camera States
     let currentStream = null;
     let facingMode = "environment"; 
@@ -1068,12 +1071,13 @@
     }
 
     // ==========================================
-    // 4. INIT ENGINE
+    // 4. INIT ENGINE & TOUCH SWIPE GESTURES
     // ==========================================
     window.addEventListener("DOMContentLoaded", () => {
       checkAuthStatus();
       loadSettingsToUI();
       initFirebase();
+      initTouchSwipeGestures();
 
       const cameraModalEl = document.getElementById("cameraModal");
       if (cameraModalEl) {
@@ -1085,6 +1089,53 @@
         if (currentStream) closeCameraScanner();
       });
     });
+
+    // Deteksi Gestur Usap Layar (Swipe) di HP
+    function initTouchSwipeGestures() {
+      let touchStartX = 0;
+      let touchStartY = 0;
+      let touchEndX = 0;
+      let touchEndY = 0;
+
+      const swipeTarget = document.getElementById("contentArea");
+
+      swipeTarget.addEventListener('touchstart', (e) => {
+        // Jangan swipe jika sedang menyentuh tabel ber-scroll atau modal aktif
+        if (e.target.closest('.table-responsive') || document.querySelector('.modal.show')) {
+          touchStartX = 0;
+          return;
+        }
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+      }, { passive: true });
+
+      swipeTarget.addEventListener('touchend', (e) => {
+        if (touchStartX === 0) return;
+        touchEndX = e.changedTouches[0].screenX;
+        touchEndY = e.changedTouches[0].screenY;
+        handleSwipeGesture();
+      }, { passive: true });
+
+      function handleSwipeGesture() {
+        const deltaX = touchEndX - touchStartX;
+        const deltaY = touchEndY - touchStartY;
+        const minSwipeDistance = 60; // Jarak minimal usap pixel
+
+        // Pastikan gerakan lebih dominan horizontal daripada vertikal
+        if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > minSwipeDistance) {
+          const currentIndex = TAB_FLOW.indexOf(CURRENT_TAB);
+          
+          // Swipe Kiri -> Pindah ke Menu Selanjutnya
+          if (deltaX < 0 && currentIndex < TAB_FLOW.length - 1) {
+            switchTab(TAB_FLOW[currentIndex + 1], 'slide-left');
+          } 
+          // Swipe Kanan -> Pindah ke Menu Sebelumnya
+          else if (deltaX > 0 && currentIndex > 0) {
+            switchTab(TAB_FLOW[currentIndex - 1], 'slide-right');
+          }
+        }
+      }
+    }
 
     function initFirebase() {
       try {
@@ -1126,21 +1177,32 @@
       });
     }
 
-    function switchTab(tabId) {
+    function switchTab(tabId, animationClass = 'slide-left') {
       CURRENT_TAB = tabId;
       document.querySelectorAll(".sidebar .nav-link, .mobile-bottom-nav a").forEach(el => el.classList.remove("active"));
       
       document.querySelectorAll(`[onclick="switchTab('${tabId}')"]`).forEach(el => el.classList.add("active"));
-      document.querySelectorAll(".view-section").forEach(el => el.classList.add("d-none"));
+      document.querySelectorAll(".view-section").forEach(el => {
+        el.classList.add("d-none");
+        el.classList.remove("slide-left", "slide-right");
+      });
 
+      let targetView;
       if (tabId === "dashboard") {
-        document.getElementById("view-dashboard").classList.remove("d-none");
+        targetView = document.getElementById("view-dashboard");
+        targetView.classList.remove("d-none");
         renderDashboard();
       } else if (tabId === "pengaturan") {
-        document.getElementById("view-pengaturan").classList.remove("d-none");
+        targetView = document.getElementById("view-pengaturan");
+        targetView.classList.remove("d-none");
       } else {
-        document.getElementById("view-crud").classList.remove("d-none");
+        targetView = document.getElementById("view-crud");
+        targetView.classList.remove("d-none");
         renderCrudView(tabId);
+      }
+
+      if (targetView && animationClass) {
+        targetView.classList.add(animationClass);
       }
     }
 
