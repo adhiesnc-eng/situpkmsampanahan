@@ -225,6 +225,35 @@
       100% { top: 0; }
     }
 
+    /* Floating Background Task Indicator */
+    .bg-task-container {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
+    .bg-task-card {
+      pointer-events: auto;
+      background: #ffffff;
+      border: 1px solid rgba(15, 118, 110, 0.2);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+      border-radius: 14px;
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 290px;
+      animation: fadeInUp 0.3s ease;
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     .skeleton {
       background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
       background-size: 200% 100%;
@@ -288,6 +317,8 @@
       .mobile-bottom-nav { display: flex; }
       .fab-btn { display: flex; }
       .content-area { padding: 18px 16px 85px 16px; }
+      .bg-task-container { bottom: 85px; right: 15px; left: 15px; }
+      .bg-task-card { width: 100%; }
     }
 
     /* Print Template */
@@ -338,7 +369,7 @@
     }
   </style>
 
-  <!-- Firebase Core & Firestore SDK (Spark Plan Free Tier) -->
+  <!-- Firebase Core & Firestore SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
   
@@ -349,6 +380,9 @@
 
   <div class="main-wrapper">
     
+    <!-- Floating Background Task Indicator Container -->
+    <div class="bg-task-container" id="bgTaskContainer"></div>
+
     <!-- Sidebar Desktop -->
     <div class="sidebar">
       <div class="brand-box text-center">
@@ -385,10 +419,10 @@
           <i class="fa-solid fa-hospital-user fs-4" style="color: var(--primary-teal);"></i>
           <div>
             <h6 class="m-0 fw-bold">SITU Puskesmas</h6>
-            <small class="text-muted" style="font-size: 11px;">Administrasi &amp; Google Drive Storage</small>
+            <small class="text-muted" style="font-size: 11px;">Background Task Engine</small>
           </div>
         </div>
-        <span class="badge bg-success-subtle text-success border border-success-subtle py-1 px-2" style="font-size: 10px;"><i class="fa-brands fa-google-drive me-1"></i>Drive Ready</span>
+        <span class="badge bg-success-subtle text-success border border-success-subtle py-1 px-2" style="font-size: 10px;"><i class="fa-solid fa-circle fa-2xs me-1"></i>Sistem Aktif</span>
       </div>
 
       <!-- Dashboard View -->
@@ -396,11 +430,11 @@
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
           <div>
             <h4 class="fw-bold m-0">Dashboard Tata Usaha</h4>
-            <p class="text-muted mb-0 small">Sistem Realtime Firestore &amp; Penyimpanan Dokumen Google Drive</p>
+            <p class="text-muted mb-0 small">Sistem Realtime &amp; Background Sync Google Drive</p>
           </div>
           <div class="d-flex gap-2">
             <span class="badge bg-white text-secondary border px-3 py-2 rounded-3 d-flex align-items-center gap-2 shadow-sm">
-              <i class="fa-brands fa-google-drive text-success"></i> Auto-Sync Drive Aktif
+              <i class="fa-solid fa-cloud-bolt text-teal"></i> Firestore Live
             </span>
           </div>
         </div>
@@ -472,30 +506,30 @@
           
           <div class="col-lg-5">
             <div class="card-pro p-4 h-100">
-              <h6 class="fw-bold mb-3"><i class="fa-brands fa-google-drive me-2 text-warning"></i>Penyimpanan Google Drive</h6>
+              <h6 class="fw-bold mb-3"><i class="fa-solid fa-bolt me-2 text-warning"></i>Proses Latar Belakang Cepat</h6>
               <div class="accordion accordion-flush" id="accGuide">
                 <div class="accordion-item">
                   <h2 class="accordion-header">
-                    <button class="accordion-button collapsed px-0 py-2 small fw-semibold" data-bs-target="#g1" data-bs-toggle="collapse">1. Auto-Upload ke Folder Drive</button>
+                    <button class="accordion-button collapsed px-0 py-2 small fw-semibold" data-bs-target="#g1" data-bs-toggle="collapse">1. Simpan Instan Tanpa Loading Menunggu</button>
                   </h2>
                   <div class="accordion-collapse collapse" id="g1">
-                    <div class="accordion-body px-0 small text-muted">Setiap file lampiran atau foto jepretan kamera OCR langsung disimpan otomatis ke folder Google Drive Puskesmas tanpa batas akun berbayar.</div>
+                    <div class="accordion-body px-0 small text-muted">Saat form disimpan, modal langsung tertutup seketika. Proses upload ke Google Drive berjalan mandiri di latar belakang tanpa mengunci layar aplikasi.</div>
                   </div>
                 </div>
                 <div class="accordion-item">
                   <h2 class="accordion-header">
-                    <button class="accordion-button collapsed px-0 py-2 small fw-semibold" data-bs-target="#g2" data-bs-toggle="collapse">2. Pindai Dokumen &amp; Kamera Pintar</button>
+                    <button class="accordion-button collapsed px-0 py-2 small fw-semibold" data-bs-target="#g2" data-bs-toggle="collapse">2. Status Toast Otomatis</button>
                   </h2>
                   <div class="accordion-collapse collapse" id="g2">
-                    <div class="accordion-body px-0 small text-muted">Gunakan tombol kamera OCR untuk mengekstrak Nomor Surat, Tanggal, dan Perihal. Kamera otomatis nonaktif saat modal ditutup.</div>
+                    <div class="accordion-body px-0 small text-muted">Kotak notifikasi di pojok layar akan menampilkan status <i>"Sedang Mengunggah &amp; Menyimpan..."</i> lalu otomatis berubah hijau saat selesai.</div>
                   </div>
                 </div>
                 <div class="accordion-item">
                   <h2 class="accordion-header">
-                    <button class="accordion-button collapsed px-0 py-2 small fw-semibold" data-bs-target="#g3" data-bs-toggle="collapse">3. Cetak Kop Surat &amp; Barcode</button>
+                    <button class="accordion-button collapsed px-0 py-2 small fw-semibold" data-bs-target="#g3" data-bs-toggle="collapse">3. Multi-Input Tanpa Hambatan</button>
                   </h2>
                   <div class="accordion-collapse collapse" id="g3">
-                    <div class="accordion-body px-0 small text-muted">Cetak SPT/Surat Keluar diformat Portrait lengkap dengan Barcode Keaslian, sedangkan tabel rekapitulasi diformat Landscape.</div>
+                    <div class="accordion-body px-0 small text-muted">Petugas dapat langsung membuka form lain untuk menginput data baru berikutnya tanpa perlu menunggu data sebelumnya selesai terunggah.</div>
                   </div>
                 </div>
               </div>
@@ -637,21 +671,21 @@
             <input id="dyn_id" type="hidden"/>
             <div class="row g-3" id="dynamicFormFields"></div>
             
-            <!-- Upload ke Google Drive Otomatis -->
+            <!-- Upload ke Google Drive -->
             <div class="col-12 mt-3 p-3 bg-light rounded-3 border" id="uploadFileSection">
               <label class="form-label small fw-bold text-teal d-flex align-items-center gap-1">
                 <i class="fa-brands fa-google-drive"></i> Upload Berkas Fisik ke Google Drive (Opsional)
               </label>
               <input class="form-control form-control-sm" id="inp_file_upload" accept=".pdf,.doc,.docx,.xls,.xlsx,image/png,image/jpeg" type="file"/>
               <div class="mt-1 d-flex justify-content-between align-items-center">
-                <small class="text-muted" style="font-size: 11px;">Mendukung PDF, Word, Excel, atau Foto Kamera (Tersimpan di Folder Drive PKM).</small>
+                <small class="text-muted" style="font-size: 11px;">Mendukung PDF, Word, Excel, atau Foto Kamera (Folder Drive PKM).</small>
                 <span class="badge bg-secondary-subtle text-secondary small d-none" id="cameraCapturedBadge"><i class="fa-solid fa-camera me-1"></i>Foto Kamera Siap</span>
               </div>
             </div>
 
             <div class="mt-4 text-end">
               <button class="btn btn-light rounded-3 px-3 me-2" data-bs-dismiss="modal" type="button">Batal</button>
-              <button class="btn text-white rounded-3 px-4" id="btnSubmitForm" style="background:#0f766e;" type="submit">Simpan Data &amp; Berkas</button>
+              <button class="btn text-white rounded-3 px-4" id="btnSubmitForm" style="background:#0f766e;" type="submit">Simpan Sekarang</button>
             </div>
           </form>
         </div>
@@ -758,7 +792,7 @@
 
   <script>
     // ==========================================
-    // 1. KREDENSIAL FIREBASE & GOOGLE DRIVE APPS SCRIPT
+    // 1. KREDENSIAL FIREBASE & GOOGLE DRIVE
     // ==========================================
     const FIREBASE_CONFIG = {
       apiKey: "AIzaSyAO0S1YaKqBc1ldQelL-GRcZCAf4eIf69Y",
@@ -792,7 +826,7 @@
     let CURRENT_TAB = "dashboard";
     let chartInstance = null;
     
-    // Camera Stream States
+    // Camera States
     let currentStream = null;
     let facingMode = "environment"; 
     let capturedBlob = null;
@@ -837,13 +871,63 @@
     };
 
     // ==========================================
-    // 3. INIT ENGINE
+    // 3. BACKGROUND TASK TOAST UI
+    // ==========================================
+    function createBackgroundTaskToast(id, initialText) {
+      const container = document.getElementById("bgTaskContainer");
+      const toast = document.createElement("div");
+      toast.id = `task-${id}`;
+      toast.className = "bg-task-card";
+      toast.innerHTML = `
+        <div class="spinner-border spinner-border-sm text-teal" role="status"></div>
+        <div class="flex-grow-1">
+          <div class="small fw-bold text-dark" id="task-title-${id}">Sedang Memproses...</div>
+          <div class="text-muted" style="font-size: 11px;" id="task-desc-${id}">${initialText}</div>
+        </div>
+      `;
+      container.appendChild(toast);
+    }
+
+    function updateBackgroundTaskToast(id, isSuccess, message) {
+      const toast = document.getElementById(`task-${id}`);
+      if (!toast) return;
+
+      if (isSuccess) {
+        toast.style.borderColor = "#10b981";
+        toast.innerHTML = `
+          <i class="fa-solid fa-circle-check text-success fs-5"></i>
+          <div class="flex-grow-1">
+            <div class="small fw-bold text-success">Berhasil Tersimpan</div>
+            <div class="text-muted" style="font-size: 11px;">${message}</div>
+          </div>
+        `;
+      } else {
+        toast.style.borderColor = "#ef4444";
+        toast.innerHTML = `
+          <i class="fa-solid fa-circle-xmark text-danger fs-5"></i>
+          <div class="flex-grow-1">
+            <div class="small fw-bold text-danger">Gagal Memproses</div>
+            <div class="text-muted" style="font-size: 11px;">${message}</div>
+          </div>
+        `;
+      }
+
+      // Hilangkan otomatis dalam 3.5 detik
+      setTimeout(() => {
+        toast.style.transition = "opacity 0.4s ease, transform 0.4s ease";
+        toast.style.opacity = "0";
+        toast.style.transform = "translateY(20px)";
+        setTimeout(() => toast.remove(), 400);
+      }, 3500);
+    }
+
+    // ==========================================
+    // 4. INIT ENGINE
     // ==========================================
     window.addEventListener("DOMContentLoaded", () => {
       loadSettingsToUI();
       initFirebase();
 
-      // Lifecycle Safe: Matikan kamera otomatis saat modal ditutup
       const cameraModalEl = document.getElementById("cameraModal");
       if (cameraModalEl) {
         cameraModalEl.addEventListener("hide.bs.modal", stopCameraStream);
@@ -904,7 +988,7 @@
     }
 
     // ==========================================
-    // 4. DASHBOARD RENDER & CHARTS
+    // 5. DASHBOARD RENDER & CHARTS
     // ==========================================
     function renderDashboard() {
       const jmlPegawai = (SITU_DATA.PegawaiNakes || []).length;
@@ -951,7 +1035,7 @@
     }
 
     // ==========================================
-    // 5. CRUD VIEW & LIVE FILTER
+    // 6. CRUD VIEW & LIVE FILTER
     // ==========================================
     function renderCrudView(tabId) {
       const config = SCHEMA[tabId];
@@ -1027,7 +1111,7 @@
     }
 
     // ==========================================
-    // 6. KAMERA PINTAR & OCR LIFECYCLE MANAGEMENT
+    // 7. KAMERA PINTAR & OCR LIFECYCLE MANAGEMENT
     // ==========================================
     function openCameraScanner() {
       capturedBlob = null;
@@ -1168,7 +1252,7 @@
     }
 
     // ==========================================
-    // 7. GOOGLE DRIVE UPLOAD BRIDGE (VIA APPS SCRIPT)
+    // 8. GOOGLE DRIVE ASYNC UPLOAD BRIDGE
     // ==========================================
     async function uploadBlobToGoogleDrive(fileOrBlob, fileName) {
       const s = JSON.parse(localStorage.getItem("SITU_PKM_SETTINGS") || JSON.stringify(DEFAULT_PROFILE));
@@ -1204,7 +1288,7 @@
     }
 
     // ==========================================
-    // 8. SAVE (WITH GOOGLE DRIVE & FIRESTORE)
+    // 9. NON-BLOCKING BACKGROUND SAVE ENGINE
     // ==========================================
     function openModalInput() {
       stopCameraStream();
@@ -1261,7 +1345,7 @@
       });
     }
 
-    async function handleSingleSave(e) {
+    function handleSingleSave(e) {
       e.preventDefault();
       if (!db) return Swal.fire("Mode Terbatas", "Firebase belum terhubung aktif.", "warning");
 
@@ -1269,64 +1353,53 @@
       const formData = new FormData(e.target);
       const docId = document.getElementById("dyn_id").value;
       const fileInput = document.getElementById("inp_file_upload");
-      
-      let payload = { updatedAt: new Date().toISOString() };
 
+      // Kloning data dan file agar modal bisa langsung tertutup
+      let payload = { updatedAt: new Date().toISOString() };
       config.columns.forEach(col => {
         payload[col] = formData.get(col) || "";
       });
 
-      // 1. Upload Otomatis Foto Kamera OCR ke Google Drive jika ada
-      if (capturedBlob) {
-        Swal.fire({
-          title: "Mengunggah ke Google Drive...",
-          html: "Menyimpan foto pindaian ke folder Google Drive Puskesmas...",
-          allowOutsideClick: false,
-          didOpen: () => Swal.showLoading()
-        });
+      const fileToUpload = (fileInput && fileInput.files.length > 0) ? fileInput.files[0] : null;
+      const cameraBlobToUpload = capturedBlob ? capturedBlob : null;
+      const targetCollection = config.collection;
+      const taskId = "TASK-" + Date.now();
 
+      // 1. LANGSUNG TUTUP MODAL INSTAN TANPA LOADING
+      bootstrap.Modal.getInstance(document.getElementById("crudModal")).hide();
+
+      // 2. MUNCULKAN TOAST STATUS LATAR BELAKANG
+      createBackgroundTaskToast(taskId, `Menyimpan data ${config.title}...`);
+
+      // 3. JALANKAN PROSES UPLOAD & FIRESTORE DI LATAR BELAKANG (ASYNC BACKGROUND)
+      (async () => {
         try {
-          const driveUrl = await uploadBlobToGoogleDrive(capturedBlob, `OCR_${CURRENT_TAB}_${Date.now()}.jpg`);
-          payload.FileUrl = driveUrl;
-        } catch (uploadErr) {
-          console.warn("Drive upload warning:", uploadErr);
-        }
-      } 
-      // 2. Upload Otomatis File Dokumen Komputer/HP ke Google Drive jika ada
-      else if (fileInput && fileInput.files.length > 0) {
-        const file = fileInput.files[0];
-        Swal.fire({
-          title: "Mengunggah ke Google Drive...",
-          html: `Mengunggah berkas <b>${file.name}</b> ke Drive Puskesmas...`,
-          allowOutsideClick: false,
-          didOpen: () => Swal.showLoading()
-        });
+          // A. Upload Foto OCR jika ada
+          if (cameraBlobToUpload) {
+            const driveUrl = await uploadBlobToGoogleDrive(cameraBlobToUpload, `OCR_${CURRENT_TAB}_${Date.now()}.jpg`);
+            payload.FileUrl = driveUrl;
+          } 
+          // B. Upload Berkas Komputer/HP jika ada
+          else if (fileToUpload) {
+            const driveUrl = await uploadBlobToGoogleDrive(fileToUpload, `${CURRENT_TAB}_${Date.now()}_${fileToUpload.name}`);
+            payload.FileUrl = driveUrl;
+          }
 
-        try {
-          const driveUrl = await uploadBlobToGoogleDrive(file, `${CURRENT_TAB}_${Date.now()}_${file.name}`);
-          payload.FileUrl = driveUrl;
-        } catch (uploadErr) {
-          Swal.close();
-          return Swal.fire("Gagal Upload Drive", uploadErr.toString(), "error");
-        }
-      }
+          // C. Simpan ke Firestore
+          if (docId) {
+            await db.collection(targetCollection).doc(docId).update(payload);
+          } else {
+            payload.createdAt = new Date().toISOString();
+            await db.collection(targetCollection).add(payload);
+          }
 
-      Swal.fire({ title: "Menyimpan Data...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-
-      try {
-        if (docId) {
-          await db.collection(config.collection).doc(docId).update(payload);
-        } else {
-          payload.createdAt = new Date().toISOString();
-          await db.collection(config.collection).add(payload);
+          // D. Perbarui toast menjadi Sukses
+          updateBackgroundTaskToast(taskId, true, "Data & berkas Drive berhasil tersinkron.");
+        } catch (err) {
+          console.error("Background task error:", err);
+          updateBackgroundTaskToast(taskId, false, err.toString());
         }
-        Swal.close();
-        bootstrap.Modal.getInstance(document.getElementById("crudModal")).hide();
-        Swal.fire({ icon: "success", title: "Berhasil", text: "Data dan berkas Drive telah tersimpan.", timer: 1500, showConfirmButton: false });
-      } catch (err) {
-        Swal.close();
-        Swal.fire("Error", err.message, "error");
-      }
+      })();
     }
 
     async function deleteRecord(tabId, docId) {
@@ -1351,7 +1424,7 @@
     }
 
     // ==========================================
-    // 9. BATCH UPLOAD EXCEL
+    // 10. BATCH UPLOAD EXCEL
     // ==========================================
     function openModalBatch() {
       new bootstrap.Modal(document.getElementById("batchModal")).show();
@@ -1404,7 +1477,7 @@
     }
 
     // ==========================================
-    // 10. SETTINGS & PROFILE MANAGEMENT
+    // 11. SETTINGS & PROFILE MANAGEMENT
     // ==========================================
     function loadSettingsToUI() {
       const s = JSON.parse(localStorage.getItem("SITU_PKM_SETTINGS") || JSON.stringify(DEFAULT_PROFILE));
@@ -1452,7 +1525,7 @@
     }
 
     // ==========================================
-    // 11. HIGH-DEFINITION PRINT ENGINE
+    // 12. HIGH-DEFINITION PRINT ENGINE
     // ==========================================
     function setupPrintKop() {
       const s = JSON.parse(localStorage.getItem("SITU_PKM_SETTINGS") || JSON.stringify(DEFAULT_PROFILE));
