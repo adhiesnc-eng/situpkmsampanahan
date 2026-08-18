@@ -31,6 +31,63 @@
       overflow-x: hidden;
     }
 
+    /* Screen Lock Overlay */
+    #authLockScreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: radial-gradient(circle at center, #0f766e 0%, #042f2e 100%);
+      z-index: 99999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .auth-card {
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(16px);
+      border-radius: 24px;
+      padding: 36px 28px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+      text-align: center;
+    }
+    .auth-input-group {
+      position: relative;
+      margin: 24px 0 16px 0;
+    }
+    .auth-input-group input {
+      width: 100%;
+      padding: 14px 46px 14px 16px;
+      border-radius: 14px;
+      border: 1.5px solid #cbd5e1;
+      font-size: 1rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+    .auth-input-group input:focus {
+      border-color: var(--primary-teal);
+      box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.15);
+    }
+    .auth-eye-btn {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      color: #64748b;
+      cursor: pointer;
+      font-size: 1.15rem;
+      padding: 4px;
+    }
+    .auth-eye-btn:hover {
+      color: var(--primary-teal);
+    }
+
     .main-wrapper {
       display: flex;
       width: 100%;
@@ -378,6 +435,32 @@
 </head>
 <body>
 
+  <!-- Layar Login Sandi Kasatmata -->
+  <div id="authLockScreen">
+    <div class="auth-card animate__animated animate__zoomIn">
+      <div class="p-3 bg-light rounded-circle d-inline-flex mb-3 shadow-sm" style="color: var(--primary-teal);">
+        <i class="fa-solid fa-hospital-user fa-2x"></i>
+      </div>
+      <h5 class="fw-bold mb-1">SITU Puskesmas</h5>
+      <p class="text-muted small mb-0">Masukkan sandi keamanan untuk masuk aplikasi</p>
+
+      <form id="formAuth" onsubmit="handleAuthLogin(event)">
+        <div class="auth-input-group">
+          <input id="inputAuthPassword" placeholder="Ketik sandi..." required type="password"/>
+          <button class="auth-eye-btn" id="btnToggleEye" onclick="togglePasswordVisibility()" title="Lihat/Sembunyikan Sandi" type="button">
+            <i class="fa-solid fa-eye" id="eyeIcon"></i>
+          </button>
+        </div>
+        <button class="btn w-100 text-white py-2 rounded-3 fw-semibold shadow-sm" style="background:#0f766e;" type="submit">
+          <i class="fa-solid fa-right-to-bracket me-1"></i> Buka Aplikasi
+        </button>
+      </form>
+      <small class="text-muted d-block mt-3" style="font-size: 11px;">
+        <i class="fa-solid fa-shield-check text-success me-1"></i>Sandi tersimpan permanen di perangkat ini
+      </small>
+    </div>
+  </div>
+
   <div class="main-wrapper">
     
     <!-- Floating Background Task Indicator Container -->
@@ -407,6 +490,11 @@
         <li class="nav-item" id="extLinkWrapper" style="display:none;">
           <a class="nav-link text-warning" href="#" id="extAppUrl" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i> <span id="extAppName">SIMPUS Online</span></a>
         </li>
+        <li class="nav-item mt-4 px-3">
+          <button class="btn btn-sm btn-outline-light w-100 rounded-3 d-flex align-items-center justify-content-center gap-2" onclick="logoutApp()">
+            <i class="fa-solid fa-lock"></i> Kunci Aplikasi
+          </button>
+        </li>
       </ul>
     </div>
 
@@ -419,10 +507,12 @@
           <i class="fa-solid fa-hospital-user fs-4" style="color: var(--primary-teal);"></i>
           <div>
             <h6 class="m-0 fw-bold">SITU Puskesmas</h6>
-            <small class="text-muted" style="font-size: 11px;">Background Task Engine</small>
+            <small class="text-muted" style="font-size: 11px;">Tata Usaha &amp; Google Drive</small>
           </div>
         </div>
-        <span class="badge bg-success-subtle text-success border border-success-subtle py-1 px-2" style="font-size: 10px;"><i class="fa-solid fa-circle fa-2xs me-1"></i>Sistem Aktif</span>
+        <button class="btn btn-sm btn-light border rounded-3 text-danger" onclick="logoutApp()" title="Kunci Aplikasi">
+          <i class="fa-solid fa-lock"></i>
+        </button>
       </div>
 
       <!-- Dashboard View -->
@@ -510,10 +600,10 @@
               <div class="accordion accordion-flush" id="accGuide">
                 <div class="accordion-item">
                   <h2 class="accordion-header">
-                    <button class="accordion-button collapsed px-0 py-2 small fw-semibold" data-bs-target="#g1" data-bs-toggle="collapse">1. Simpan Instan Tanpa Loading Menunggu</button>
+                    <button class="accordion-button collapsed px-0 py-2 small fw-semibold" data-bs-target="#g1" data-bs-toggle="collapse">1. Simpan Instan Tanpa Loading</button>
                   </h2>
                   <div class="accordion-collapse collapse" id="g1">
-                    <div class="accordion-body px-0 small text-muted">Saat form disimpan, modal langsung tertutup seketika. Proses upload ke Google Drive berjalan mandiri di latar belakang tanpa mengunci layar aplikasi.</div>
+                    <div class="accordion-body px-0 small text-muted">Saat form disimpan, modal langsung tertutup seketika. Proses upload ke Google Drive berjalan mandiri di latar belakang.</div>
                   </div>
                 </div>
                 <div class="accordion-item">
@@ -526,10 +616,10 @@
                 </div>
                 <div class="accordion-item">
                   <h2 class="accordion-header">
-                    <button class="accordion-button collapsed px-0 py-2 small fw-semibold" data-bs-target="#g3" data-bs-toggle="collapse">3. Multi-Input Tanpa Hambatan</button>
+                    <button class="accordion-button collapsed px-0 py-2 small fw-semibold" data-bs-target="#g3" data-bs-toggle="collapse">3. Sandi Permanen</button>
                   </h2>
                   <div class="accordion-collapse collapse" id="g3">
-                    <div class="accordion-body px-0 small text-muted">Petugas dapat langsung membuka form lain untuk menginput data baru berikutnya tanpa perlu menunggu data sebelumnya selesai terunggah.</div>
+                    <div class="accordion-body px-0 small text-muted">Sandi cukup dimasukkan satu kali pada saat pertama kali menggunakan perangkat.</div>
                   </div>
                 </div>
               </div>
@@ -792,6 +882,63 @@
 
   <script>
     // ==========================================
+    // 0. SISTEM KEAMANAN SANDI & REMEMBER LOGIN
+    // ==========================================
+    const APP_PASSWORD = "kasatmata"; // Sandi Utama Masuk Aplikasi
+
+    function checkAuthStatus() {
+      const isAuth = localStorage.getItem("SITU_AUTH_PERSISTENT");
+      if (isAuth === "true") {
+        document.getElementById("authLockScreen").style.display = "none";
+      } else {
+        document.getElementById("authLockScreen").style.display = "flex";
+      }
+    }
+
+    function togglePasswordVisibility() {
+      const pwdInput = document.getElementById("inputAuthPassword");
+      const eyeIcon = document.getElementById("eyeIcon");
+      if (pwdInput.type === "password") {
+        pwdInput.type = "text";
+        eyeIcon.classList.remove("fa-eye");
+        eyeIcon.classList.add("fa-eye-slash");
+      } else {
+        pwdInput.type = "password";
+        eyeIcon.classList.remove("fa-eye-slash");
+        eyeIcon.classList.add("fa-eye");
+      }
+    }
+
+    function handleAuthLogin(e) {
+      e.preventDefault();
+      const enteredPwd = document.getElementById("inputAuthPassword").value;
+      if (enteredPwd === APP_PASSWORD) {
+        localStorage.setItem("SITU_AUTH_PERSISTENT", "true");
+        document.getElementById("authLockScreen").style.display = "none";
+        Swal.fire({ icon: "success", title: "Berhasil Masuk", text: "Sandi tersimpan permanen di perangkat ini.", timer: 1200, showConfirmButton: false });
+      } else {
+        Swal.fire({ icon: "error", title: "Sandi Salah", text: "Silakan periksa kembali sandi Anda." });
+      }
+    }
+
+    function logoutApp() {
+      Swal.fire({
+        title: "Kunci Aplikasi?",
+        text: "Anda harus memasukkan sandi kembali untuk membuka aplikasi.",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#0f766e",
+        confirmButtonText: "Ya, Kunci"
+      }).then((res) => {
+        if (res.isConfirmed) {
+          localStorage.removeItem("SITU_AUTH_PERSISTENT");
+          document.getElementById("inputAuthPassword").value = "";
+          document.getElementById("authLockScreen").style.display = "flex";
+        }
+      });
+    }
+
+    // ==========================================
     // 1. KREDENSIAL FIREBASE & GOOGLE DRIVE
     // ==========================================
     const FIREBASE_CONFIG = {
@@ -924,6 +1071,7 @@
     // 4. INIT ENGINE
     // ==========================================
     window.addEventListener("DOMContentLoaded", () => {
+      checkAuthStatus();
       loadSettingsToUI();
       initFirebase();
 
@@ -961,7 +1109,7 @@
             list.push({ id: doc.id, ...doc.data() });
           });
 
-          // Urutkan PegawaiNakes berdasarkan indeks baris Google Sheets (Urutan)
+          // Urutkan PegawaiNakes berdasarkan baris Google Sheets (Urutan)
           if (colName === "PegawaiNakes") {
             list.sort((a, b) => {
               const urutA = a.Urutan !== undefined ? Number(a.Urutan) : 9999;
