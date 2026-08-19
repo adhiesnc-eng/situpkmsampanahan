@@ -1058,15 +1058,30 @@
       });
     }
 
+    // Helper Pembanding Versi (SemVer)
+    function isNewerVersion(serverVer, currentVer) {
+      const v1 = serverVer.split('.').map(Number);
+      const v2 = currentVer.split('.').map(Number);
+      for (let i = 0; i < Math.max(v1.length, v2.length); i++) {
+        const num1 = v1[i] || 0;
+        const num2 = v2[i] || 0;
+        if (num1 > num2) return true;
+        if (num1 < num2) return false;
+      }
+      return false;
+    }
+
+    // Engine Pengecekan Versi Otomatis (Aman & Sinkron)
     function checkForAppUpdates(isManualCheck = false) {
       if (!db) return;
       
       db.collection("SystemConfig").doc("AppVersion").get().then((doc) => {
         if (doc.exists) {
-          const serverVer = doc.data().latestVersion;
+          const serverVer = doc.data().latestVersion || CURRENT_APP_VERSION;
           const changelog = doc.data().changelog || "Peningkatan performa, scanner QR Aset, Export Excel & PWA.";
 
-          if (serverVer && serverVer !== CURRENT_APP_VERSION) {
+          // Hanya munculkan popup jika versi di server BENAR-BENAR lebih baru dari aplikasi
+          if (isNewerVersion(serverVer, CURRENT_APP_VERSION)) {
             Swal.fire({
               title: "Pembaruan Tersedia!",
               html: `<div class='text-start small'><b>Versi Baru: v${serverVer}</b> (Versi Anda: v${CURRENT_APP_VERSION})<br/><br/><b>Catatan Rilis:</b><br/>${changelog}</div>`,
@@ -1085,18 +1100,33 @@
                 window.location.reload(true);
               }
             });
-          } else if (isManualCheck) {
-            Swal.fire({ icon: "success", title: "Aplikasi Terkini", text: `Anda sudah menggunakan versi terbaru (v${CURRENT_APP_VERSION}).`, timer: 2000, showConfirmButton: false });
+          } else {
+            // Jika aplikasi lokal lebih baru/sama, otomatis perbarui database Firestore
+            if (serverVer !== CURRENT_APP_VERSION) {
+              db.collection("SystemConfig").doc("AppVersion").set({
+                latestVersion: CURRENT_APP_VERSION,
+                changelog: "Rilis v2.6.0: PWA Shortcut Layar Utama, Scanner Cek Fisik QR Aset, Export Excel & Backup 1-Klik.",
+                updatedAt: new Date().toISOString()
+              });
+            }
+
+            if (isManualCheck) {
+              Swal.fire({ 
+                icon: "success", 
+                title: "Aplikasi Terkini", 
+                text: `Anda sudah menggunakan versi terbaru (v${CURRENT_APP_VERSION}).`, 
+                timer: 2000, 
+                showConfirmButton: false 
+              });
+            }
           }
         } else {
+          // Buat record versi jika belum ada di Firestore
           db.collection("SystemConfig").doc("AppVersion").set({
             latestVersion: CURRENT_APP_VERSION,
             changelog: "Rilis v2.6.0: PWA Shortcut Layar Utama, Scanner Cek Fisik QR Aset, Export Excel & Backup 1-Klik.",
             updatedAt: new Date().toISOString()
           });
-          if (isManualCheck) {
-            Swal.fire({ icon: "success", title: "Versi Terkini", text: `Aplikasi Anda telah berada pada versi v${CURRENT_APP_VERSION}.`, timer: 1800, showConfirmButton: false });
-          }
         }
       }).catch(err => {
         if (isManualCheck) Swal.fire("Info", "Tidak dapat terhubung ke server pembaruan.", "info");
@@ -1825,7 +1855,7 @@
         };
 
         if (bulanMap[monthStr]) month = bulanMap[monthStr];
-        else if (!isNaN(parseIntmonthStr)) month = monthStr.padStart(2, '0');
+        else if (!isNaN(parseInt(monthStr))) month = monthStr.padStart(2, '0');
 
         const formattedDate = `${year}-${month}-${day}`;
         if (document.getElementById("inp_TglSurat")) document.getElementById("inp_TglSurat").value = formattedDate;
