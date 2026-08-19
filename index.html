@@ -12,6 +12,9 @@
   <meta name="apple-mobile-web-app-title" content="SITU PKM"/>
   <link rel="apple-touch-icon" href="https://via.placeholder.com/192/0f766e/ffffff?text=SITU"/>
 
+  <!-- Link File Manifest Fisik -->
+  <link rel="manifest" href="./manifest.json"/>
+
   <!-- Fonts & Core CSS -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -989,37 +992,17 @@
 
   <script>
     // ==========================================
-    // 0. VERSI APLIKASI, PWA & AUTO-UPDATE ENGINE
+    // 0. REGISTRASI PWA SERVICE WORKER FISIK
     // ==========================================
     const CURRENT_APP_VERSION = "2.6.0"; 
 
-    // Setup PWA Web App Manifest secara Dinamis (Inline)
-    (function initPWAManifest() {
-      const manifest = {
-        name: "SITU Pro UPTD Puskesmas",
-        short_name: "SITU PKM",
-        start_url: window.location.href,
-        display: "standalone",
-        background_color: "#042f2e",
-        theme_color: "#0f766e",
-        icons: [{
-          src: "https://via.placeholder.com/192/0f766e/ffffff?text=SITU",
-          sizes: "192x192",
-          type: "image/png"
-        }, {
-          src: "https://via.placeholder.com/512/0f766e/ffffff?text=SITU+PRO",
-          sizes: "512x512",
-          type: "image/png"
-        }]
-      };
-      const stringManifest = JSON.stringify(manifest);
-      const blob = new Blob([stringManifest], {type: 'application/json'});
-      const manifestURL = URL.createObjectURL(blob);
-      const link = document.createElement('link');
-      link.rel = 'manifest';
-      link.href = manifestURL;
-      document.head.appendChild(link);
-    })();
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js")
+          .then((reg) => console.log("PWA Service Worker Aktif:", reg.scope))
+          .catch((err) => console.log("PWA Service Worker Gagal:", err));
+      });
+    }
 
     function checkAuthStatus() {
       const isAuth = localStorage.getItem("SITU_AUTH_PERSISTENT");
@@ -1589,7 +1572,6 @@
         return Swal.fire("Data Kosong", "Tidak ada data yang dapat diekspor pada filter ini.", "warning");
       }
 
-      // Format Baris Kolom Sesuai Label
       const excelData = rows.map((r, index) => {
         let obj = { "No": index + 1 };
         config.columns.forEach((col, idx) => {
@@ -1688,7 +1670,6 @@
     function handleScannedQRCode(qrText) {
       closeQRScannerModal();
       
-      // Format QR: KODE: XYZ | ASET: ABC | RUANG: DEF
       const matchKode = qrText.match(/KODE:\s*([^\|]+)/i);
       const kodeTarget = matchKode ? matchKode[1].trim() : qrText.trim();
 
@@ -1844,7 +1825,7 @@
         };
 
         if (bulanMap[monthStr]) month = bulanMap[monthStr];
-        else if (!isNaN(parseInt(monthStr))) month = monthStr.padStart(2, '0');
+        else if (!isNaN(parseIntmonthStr)) month = monthStr.padStart(2, '0');
 
         const formattedDate = `${year}-${month}-${day}`;
         if (document.getElementById("inp_TglSurat")) document.getElementById("inp_TglSurat").value = formattedDate;
