@@ -5,6 +5,13 @@
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
   <title>SITU Pro - UPTD Puskesmas</title>
   
+  <!-- PWA & Mobile Web Capabilities -->
+  <meta name="theme-color" content="#0f766e"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="SITU PKM"/>
+  <link rel="apple-touch-icon" href="https://via.placeholder.com/192/0f766e/ffffff?text=SITU"/>
+
   <!-- Fonts & Core CSS -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -32,7 +39,7 @@
       background-color: var(--bg-surface);
       color: #0f172a;
       overflow-x: hidden;
-      touch-action: pan-y; /* Membantu deteksi swipe horizontal di HP */
+      touch-action: pan-y;
     }
 
     /* Screen Lock Overlay */
@@ -105,6 +112,8 @@
       top: 0;
       box-shadow: 4px 0 24px rgba(0, 0, 0, 0.08);
       z-index: 1000;
+      display: flex;
+      flex-direction: column;
     }
     .sidebar .brand-box {
       padding: 24px 20px;
@@ -136,6 +145,14 @@
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     }
 
+    .sidebar-footer-version {
+      margin-top: auto;
+      padding: 16px 20px;
+      background: rgba(0, 0, 0, 0.2);
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      text-align: center;
+    }
+
     /* Content Area & Swipe Anim */
     .content-area {
       flex: 1;
@@ -143,12 +160,8 @@
       min-width: 0;
     }
 
-    .slide-left {
-      animation: slideInLeft 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .slide-right {
-      animation: slideInRight 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    }
+    .slide-left { animation: slideInLeft 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+    .slide-right { animation: slideInRight 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
 
     @keyframes slideInLeft {
       from { opacity: 0; transform: translateX(40px); }
@@ -164,6 +177,11 @@
       border: 1px solid var(--card-border);
       border-radius: 20px;
       box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.03), 0 8px 10px -6px rgba(15, 23, 42, 0.02);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .card-pro:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 20px 30px -10px rgba(15, 23, 42, 0.07);
     }
 
     .stat-card-gradient {
@@ -211,7 +229,7 @@
 
     .search-input-group {
       position: relative;
-      min-width: 240px;
+      min-width: 180px;
     }
     .search-input-group i {
       position: absolute;
@@ -224,7 +242,7 @@
     .search-input-group input {
       padding-left: 38px;
       border-radius: 12px;
-      border: 1px solid #cbd5e1;
+      border: 1.5px solid #cbd5e1;
       font-size: 0.88rem;
       background: #fff;
     }
@@ -386,7 +404,7 @@
       .bg-task-card { width: 100%; }
     }
 
-    /* Print Template */
+    /* Print Template & SPPD Multi-Page Engine */
     #printArea { display: none; }
     @media print {
       body * { visibility: hidden; }
@@ -400,6 +418,11 @@
         margin: 0;
         padding: 15px;
         background: #fff;
+      }
+      .page-break {
+        page-break-before: always;
+        break-before: page;
+        margin-top: 30px;
       }
       .kop-surat {
         display: flex;
@@ -431,6 +454,15 @@
         margin-top: -15px;
         margin-bottom: 15px;
       }
+      .table-print-bordered {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .table-print-bordered th, .table-print-bordered td {
+        border: 1px solid #000;
+        padding: 6px 8px;
+        font-size: 10pt;
+      }
     }
   </style>
 
@@ -440,6 +472,9 @@
   
   <!-- Tesseract.js OCR Engine -->
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+  <!-- jsQR Scanner for Realtime QR Code -->
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 </head>
 <body>
 
@@ -450,6 +485,7 @@
         <i class="fa-solid fa-hospital-user fa-2x"></i>
       </div>
       <h5 class="fw-bold mb-1">SITU Puskesmas</h5>
+      <span class="badge bg-teal text-teal mb-2 app-version-badge">v2.6.0 Pro</span>
       <p class="text-muted small mb-0">Masukkan sandi keamanan untuk masuk aplikasi</p>
 
       <form id="formAuth" onsubmit="handleAuthLogin(event)">
@@ -489,21 +525,29 @@
       <ul class="nav flex-column mt-3" id="sidebarMenu">
         <li class="nav-item"><a class="nav-link active" onclick="switchTab('dashboard')"><i class="fa-solid fa-grid-2"></i> Dashboard TU</a></li>
         <li class="nav-item"><a class="nav-link" onclick="switchTab('surat-masuk')"><i class="fa-solid fa-inbox-in"></i> Surat Masuk</a></li>
-        <li class="nav-item"><a class="nav-link" onclick="switchTab('surat-keluar')"><i class="fa-solid fa-paper-plane"></i> Surat Keluar / SPT</a></li>
+        <li class="nav-item"><a class="nav-link" onclick="switchTab('surat-keluar')"><i class="fa-solid fa-paper-plane"></i> Surat Tugas &amp; SPPD</a></li>
         <li class="nav-item"><a class="nav-link" onclick="switchTab('buku-tamu')"><i class="fa-solid fa-book-user"></i> Buku Tamu / Monev</a></li>
-        <li class="nav-item"><a class="nav-link" onclick="switchTab('agenda')"><i class="fa-solid fa-calendar-range"></i> Agenda / Lokmin</a></li>
+        <li class="nav-item"><a class="nav-link" onclick="switchTab('agenda')"><i class="fa-solid fa-calendar-range"></i> Agenda &amp; Notula</a></li>
         <li class="nav-item"><a class="nav-link" onclick="switchTab('pegawai')"><i class="fa-solid fa-user-doctor-hair"></i> Pegawai &amp; Nakes</a></li>
         <li class="nav-item"><a class="nav-link" onclick="switchTab('aset')"><i class="fa-solid fa-boxes-stacked"></i> Inventaris Sarpras</a></li>
         <li class="nav-item"><a class="nav-link" onclick="switchTab('pengaturan')"><i class="fa-solid fa-sliders"></i> Profil &amp; Instansi</a></li>
         <li class="nav-item" id="extLinkWrapper" style="display:none;">
           <a class="nav-link text-warning" href="#" id="extAppUrl" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i> <span id="extAppName">SIMPUS Online</span></a>
         </li>
-        <li class="nav-item mt-4 px-3">
-          <button class="btn btn-sm btn-outline-light w-100 rounded-3 d-flex align-items-center justify-content-center gap-2" onclick="logoutApp()">
-            <i class="fa-solid fa-lock"></i> Kunci Aplikasi
-          </button>
-        </li>
       </ul>
+
+      <div class="sidebar-footer-version">
+        <div class="d-flex align-items-center justify-content-between text-white-50 small mb-2">
+          <span>Versi Sistem</span>
+          <span class="badge bg-white text-dark fw-bold app-version-badge">v2.6.0 Pro</span>
+        </div>
+        <button class="btn btn-sm btn-outline-light w-100 rounded-3 d-flex align-items-center justify-content-center gap-2 mb-2" onclick="checkForAppUpdates(true)">
+          <i class="fa-solid fa-rotate"></i> Cek Pembaruan
+        </button>
+        <button class="btn btn-sm btn-danger w-100 rounded-3 d-flex align-items-center justify-content-center gap-2" onclick="logoutApp()">
+          <i class="fa-solid fa-lock"></i> Kunci Aplikasi
+        </button>
+      </div>
     </div>
 
     <!-- Main Content Area -->
@@ -514,13 +558,21 @@
         <div class="d-flex align-items-center gap-2">
           <i class="fa-solid fa-hospital-user fs-4" style="color: var(--primary-teal);"></i>
           <div>
-            <h6 class="m-0 fw-bold">SITU Puskesmas</h6>
-            <small class="text-muted" style="font-size: 11px;"><i class="fa-solid fa-arrows-left-right me-1 text-teal"></i>Geser layar untuk ganti menu</small>
+            <div class="d-flex align-items-center gap-1">
+              <h6 class="m-0 fw-bold">SITU Puskesmas</h6>
+              <span class="badge bg-teal text-teal app-version-badge" style="font-size:9px;">v2.6.0</span>
+            </div>
+            <small class="text-muted" style="font-size: 11px;"><i class="fa-solid fa-arrows-left-right me-1 text-teal"></i>Geser layar ganti menu</small>
           </div>
         </div>
-        <button class="btn btn-sm btn-light border rounded-3 text-danger" onclick="logoutApp()" title="Kunci Aplikasi">
-          <i class="fa-solid fa-lock"></i>
-        </button>
+        <div class="d-flex gap-1">
+          <button class="btn btn-sm btn-light border rounded-3" onclick="checkForAppUpdates(true)" title="Cek Update">
+            <i class="fa-solid fa-rotate"></i>
+          </button>
+          <button class="btn btn-sm btn-light border rounded-3 text-danger" onclick="logoutApp()" title="Kunci Aplikasi">
+            <i class="fa-solid fa-lock"></i>
+          </button>
+        </div>
       </div>
 
       <!-- Dashboard View -->
@@ -560,7 +612,7 @@
                 </div>
                 <div class="p-2 bg-white bg-opacity-25 rounded-3"><i class="fa-solid fa-envelope-circle-check fa-xl text-white"></i></div>
               </div>
-              <small class="mt-3 d-block text-white-50"><i class="fa-solid fa-file-pdf me-1"></i> Surat Masuk &amp; SPT Digital</small>
+              <small class="mt-3 d-block text-white-50"><i class="fa-solid fa-file-pdf me-1"></i> Surat Masuk, SPT &amp; SPPD</small>
             </div>
           </div>
           <div class="col-xl-3 col-sm-6">
@@ -604,22 +656,30 @@
           
           <div class="col-lg-5">
             <div class="card-pro p-4 h-100">
-              <h6 class="fw-bold mb-3"><i class="fa-solid fa-mobile-screen-button me-2 text-teal"></i>Fitur Geser Layar HP (Touch Swipe)</h6>
+              <h6 class="fw-bold mb-3"><i class="fa-solid fa-circle-plus me-2 text-warning"></i>Fitur Unggulan v2.6.0</h6>
               <div class="accordion accordion-flush" id="accGuide">
                 <div class="accordion-item">
                   <h2 class="accordion-header">
-                    <button class="accordion-button collapsed px-0 py-2 small fw-semibold" data-bs-target="#g1" data-bs-toggle="collapse">1. Geser Kiri / Kanan di HP</button>
+                    <button class="accordion-button collapsed px-0 py-2 small fw-semibold" data-bs-target="#g1" data-bs-toggle="collapse">1. PWA &amp; Shortcut Layar Utama</button>
                   </h2>
                   <div class="accordion-collapse collapse" id="g1">
-                    <div class="accordion-body px-0 small text-muted">Usap layar smartphone ke kiri atau ke kanan untuk berpindah menu dengan cepat (Dashboard, Surat Masuk, Surat Keluar, Nakes, Sarpras, Profil).</div>
+                    <div class="accordion-body px-0 small text-muted">Aplikasi dapat diinstal langsung ke layar utama smartphone tanpa bilah browser untuk pengalaman aplikasi mandiri.</div>
                   </div>
                 </div>
                 <div class="accordion-item">
                   <h2 class="accordion-header">
-                    <button class="accordion-button collapsed px-0 py-2 small fw-semibold" data-bs-target="#g2" data-bs-toggle="collapse">2. Proteksi Tabel</button>
+                    <button class="accordion-button collapsed px-0 py-2 small fw-semibold" data-bs-target="#g2" data-bs-toggle="collapse">2. Scanner Cek Fisik QR Aset</button>
                   </h2>
                   <div class="accordion-collapse collapse" id="g2">
-                    <div class="accordion-body px-0 small text-muted">Saat Anda menggeser kolom tabel data secara horizontal, menu tidak akan berpindah secara tidak sengaja.</div>
+                    <div class="accordion-body px-0 small text-muted">Gunakan tombol "Scan QR Aset" di tab Sarpras untuk memindai stiker QR barang dan langsung memperbarui status kondisinya.</div>
+                  </div>
+                </div>
+                <div class="accordion-item">
+                  <h2 class="accordion-header">
+                    <button class="accordion-button collapsed px-0 py-2 small fw-semibold" data-bs-target="#g3" data-bs-toggle="collapse">3. Export Excel &amp; Backup 1-Klik</button>
+                  </h2>
+                  <div class="accordion-collapse collapse" id="g3">
+                    <div class="accordion-body px-0 small text-muted">Ekspor seluruh rekapan tabel sesuai filter periode Lokmin ke file .xlsx atau unduh salinan cadangan database Firestore dalam 1 klik.</div>
                   </div>
                 </div>
               </div>
@@ -638,14 +698,28 @@
             </div>
             
             <div class="d-flex gap-2 flex-wrap align-items-center">
+              <!-- Filter Periode Siap Lokmin -->
+              <select class="form-select form-select-sm rounded-3 border-secondary-subtle" id="filterPeriodeSelect" onchange="filterTableLive()" style="width: auto; font-size: 0.88rem;">
+                <option value="all">📅 Semua Periode</option>
+                <option value="this_month">Bulan Ini</option>
+                <option value="q1">Triwulan 1 (Jan - Mar)</option>
+                <option value="q2">Triwulan 2 (Apr - Jun)</option>
+                <option value="q3">Triwulan 3 (Jul - Sep)</option>
+                <option value="q4">Triwulan 4 (Okt - Des)</option>
+              </select>
+
               <div class="search-input-group">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input class="form-control" id="liveSearchInput" onkeyup="filterTableLive()" placeholder="Cari data..." type="text"/>
+                <input class="form-control form-control-sm" id="liveSearchInput" onkeyup="filterTableLive()" placeholder="Cari data..." type="text"/>
               </div>
 
+              <!-- Tombol Khusus Scan QR Aset -->
+              <button class="btn btn-dark btn-sm px-3 py-2 rounded-3" id="btnScanQRAset" onclick="openQRScannerModal()" style="display:none;"><i class="fa-solid fa-qrcode me-1"></i> Scan QR Aset</button>
+
               <button class="btn btn-sm text-white px-3 py-2 rounded-3" onclick="openModalInput()" style="background:#0f766e;"><i class="fa-solid fa-plus me-1"></i> Tambah</button>
-              <button class="btn btn-outline-success btn-sm px-3 py-2 rounded-3" id="btnUploadBatch" onclick="openModalBatch()"><i class="fa-solid fa-file-excel me-1"></i> Excel Batch</button>
-              <button class="btn btn-outline-dark btn-sm px-3 py-2 rounded-3" onclick="printCurrentTable()"><i class="fa-solid fa-print me-1"></i> Cetak Tabel</button>
+              <button class="btn btn-outline-success btn-sm px-3 py-2 rounded-3" id="btnUploadBatch" onclick="openModalBatch()"><i class="fa-solid fa-file-excel me-1"></i> Import</button>
+              <button class="btn btn-success btn-sm px-3 py-2 rounded-3 text-white" onclick="exportCurrentTableToExcel()"><i class="fa-solid fa-file-export me-1"></i> Export Excel</button>
+              <button class="btn btn-outline-dark btn-sm px-3 py-2 rounded-3" onclick="printCurrentTable()"><i class="fa-solid fa-print me-1"></i> Cetak Rekap</button>
             </div>
           </div>
           
@@ -661,7 +735,10 @@
       <!-- Settings View -->
       <div class="view-section d-none" id="view-pengaturan">
         <div class="card-pro p-4">
-          <h4 class="fw-bold mb-1"><i class="fa-solid fa-sliders me-2" style="color: var(--primary-teal);"></i>Profil Instansi Puskesmas</h4>
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <h4 class="fw-bold m-0"><i class="fa-solid fa-sliders me-2" style="color: var(--primary-teal);"></i>Profil Instansi Puskesmas</h4>
+            <span class="badge bg-teal text-teal app-version-badge">v2.6.0 Pro</span>
+          </div>
           <p class="text-muted small mb-4">Pengaturan Kop Surat, Pejabat Penandatangan, dan Google Drive Endpoint</p>
 
           <form id="formSettings" onsubmit="saveSettings(event)">
@@ -715,8 +792,12 @@
                 <input class="form-control" id="cfg_ext_url" placeholder="https://..." type="url"/>
               </div>
             </div>
-            <div class="mt-4">
+            <div class="mt-4 d-flex flex-wrap gap-2 justify-content-between align-items-center">
               <button class="btn text-white px-4 py-2 rounded-3" style="background:#0f766e;" type="submit"><i class="fa-solid fa-floppy-disk me-1"></i> Simpan Profil Instansi</button>
+              <div class="d-flex gap-2">
+                <button class="btn btn-outline-primary btn-sm rounded-3" onclick="backupFullDatabaseJSON()" type="button"><i class="fa-solid fa-database me-1"></i> Backup Full DB (JSON)</button>
+                <button class="btn btn-outline-secondary btn-sm rounded-3" onclick="checkForAppUpdates(true)" type="button"><i class="fa-solid fa-cloud-arrow-down me-1"></i> Cek Versi Baru</button>
+              </div>
             </div>
           </form>
         </div>
@@ -763,12 +844,12 @@
             
             <!-- Upload ke Google Drive -->
             <div class="col-12 mt-3 p-3 bg-light rounded-3 border" id="uploadFileSection">
-              <label class="form-label small fw-bold text-teal d-flex align-items-center gap-1">
+              <label class="form-label small fw-bold text-teal d-flex align-items-center gap-1" id="labelUploadDrive">
                 <i class="fa-brands fa-google-drive"></i> Upload Berkas Fisik ke Google Drive (Opsional)
               </label>
               <input class="form-control form-control-sm" id="inp_file_upload" accept=".pdf,.doc,.docx,.xls,.xlsx,image/png,image/jpeg" type="file"/>
               <div class="mt-1 d-flex justify-content-between align-items-center">
-                <small class="text-muted" style="font-size: 11px;">Mendukung PDF, Word, Excel, atau Foto Kamera (Folder Drive PKM).</small>
+                <small class="text-muted" style="font-size: 11px;">Mendukung PDF, Word, Excel, Notula, atau Foto Kamera (Folder Drive PKM).</small>
                 <span class="badge bg-secondary-subtle text-secondary small d-none" id="cameraCapturedBadge"><i class="fa-solid fa-camera me-1"></i>Foto Kamera Siap</span>
               </div>
             </div>
@@ -818,6 +899,32 @@
     </div>
   </div>
 
+  <!-- Modal Pemindai QR Code Realtime Aset (Stok Opname) -->
+  <div class="modal fade" id="qrScannerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow rounded-4 bg-dark text-white">
+        <div class="modal-header border-bottom border-secondary pb-2">
+          <h6 class="modal-title fw-bold text-white"><i class="fa-solid fa-qrcode me-2 text-success"></i>Scan QR Code Aset (Stok Opname)</h6>
+          <button class="btn-close btn-close-white" onclick="closeQRScannerModal()" type="button"></button>
+        </div>
+        <div class="modal-body p-3 text-center">
+          <div class="camera-container">
+            <video autoplay id="qrVideo" playsinline></video>
+            <div class="scanner-overlay">
+              <div class="scan-bar" style="background: linear-gradient(90deg, #10b981, #f59e0b);"></div>
+            </div>
+          </div>
+          <p class="small text-white-50 mt-2 mb-0">Arahkan kamera ke stiker QR Code yang tertempel di barang</p>
+          <canvas id="qrCanvas" style="display:none;"></canvas>
+        </div>
+        <div class="modal-footer border-top border-secondary justify-content-between">
+          <button class="btn btn-outline-light btn-sm px-3 rounded-3" onclick="closeQRScannerModal()" type="button">Batal</button>
+          <button class="btn btn-secondary btn-sm px-3 rounded-3" onclick="switchQRCameraFacing()" type="button"><i class="fa-solid fa-rotate me-1"></i> Balik Kamera</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal Batch Upload -->
   <div class="modal fade" id="batchModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
@@ -845,7 +952,7 @@
     </div>
   </div>
 
-  <!-- Area Cetak Window.Print Dinamis -->
+  <!-- Area Cetak Window.Print Dinamis (SPT Multi-Pegawai & Format Baku SPPD) -->
   <div id="printArea">
     <div class="kop-surat">
       <img alt="Logo Pemda" id="printLogoDaerah" src=""/>
@@ -882,9 +989,37 @@
 
   <script>
     // ==========================================
-    // 0. SISTEM KEAMANAN SANDI & REMEMBER LOGIN
+    // 0. VERSI APLIKASI, PWA & AUTO-UPDATE ENGINE
     // ==========================================
-    const APP_PASSWORD = "kasatmata";
+    const CURRENT_APP_VERSION = "2.6.0"; 
+
+    // Setup PWA Web App Manifest secara Dinamis (Inline)
+    (function initPWAManifest() {
+      const manifest = {
+        name: "SITU Pro UPTD Puskesmas",
+        short_name: "SITU PKM",
+        start_url: window.location.href,
+        display: "standalone",
+        background_color: "#042f2e",
+        theme_color: "#0f766e",
+        icons: [{
+          src: "https://via.placeholder.com/192/0f766e/ffffff?text=SITU",
+          sizes: "192x192",
+          type: "image/png"
+        }, {
+          src: "https://via.placeholder.com/512/0f766e/ffffff?text=SITU+PRO",
+          sizes: "512x512",
+          type: "image/png"
+        }]
+      };
+      const stringManifest = JSON.stringify(manifest);
+      const blob = new Blob([stringManifest], {type: 'application/json'});
+      const manifestURL = URL.createObjectURL(blob);
+      const link = document.createElement('link');
+      link.rel = 'manifest';
+      link.href = manifestURL;
+      document.head.appendChild(link);
+    })();
 
     function checkAuthStatus() {
       const isAuth = localStorage.getItem("SITU_AUTH_PERSISTENT");
@@ -908,6 +1043,8 @@
         eyeIcon.classList.add("fa-eye");
       }
     }
+
+    const APP_PASSWORD = "kasatmata";
 
     function handleAuthLogin(e) {
       e.preventDefault();
@@ -935,6 +1072,51 @@
           document.getElementById("inputAuthPassword").value = "";
           document.getElementById("authLockScreen").style.display = "flex";
         }
+      });
+    }
+
+    function checkForAppUpdates(isManualCheck = false) {
+      if (!db) return;
+      
+      db.collection("SystemConfig").doc("AppVersion").get().then((doc) => {
+        if (doc.exists) {
+          const serverVer = doc.data().latestVersion;
+          const changelog = doc.data().changelog || "Peningkatan performa, scanner QR Aset, Export Excel & PWA.";
+
+          if (serverVer && serverVer !== CURRENT_APP_VERSION) {
+            Swal.fire({
+              title: "Pembaruan Tersedia!",
+              html: `<div class='text-start small'><b>Versi Baru: v${serverVer}</b> (Versi Anda: v${CURRENT_APP_VERSION})<br/><br/><b>Catatan Rilis:</b><br/>${changelog}</div>`,
+              icon: "info",
+              showCancelButton: true,
+              confirmButtonColor: "#0f766e",
+              confirmButtonText: "<i class='fa-solid fa-arrows-rotate me-1'></i> Perbarui Sekarang",
+              cancelButtonText: "Nanti Saja"
+            }).then((res) => {
+              if (res.isConfirmed) {
+                if ('caches' in window) {
+                  caches.keys().then(names => {
+                    names.forEach(name => caches.delete(name));
+                  });
+                }
+                window.location.reload(true);
+              }
+            });
+          } else if (isManualCheck) {
+            Swal.fire({ icon: "success", title: "Aplikasi Terkini", text: `Anda sudah menggunakan versi terbaru (v${CURRENT_APP_VERSION}).`, timer: 2000, showConfirmButton: false });
+          }
+        } else {
+          db.collection("SystemConfig").doc("AppVersion").set({
+            latestVersion: CURRENT_APP_VERSION,
+            changelog: "Rilis v2.6.0: PWA Shortcut Layar Utama, Scanner Cek Fisik QR Aset, Export Excel & Backup 1-Klik.",
+            updatedAt: new Date().toISOString()
+          });
+          if (isManualCheck) {
+            Swal.fire({ icon: "success", title: "Versi Terkini", text: `Aplikasi Anda telah berada pada versi v${CURRENT_APP_VERSION}.`, timer: 1800, showConfirmButton: false });
+          }
+        }
+      }).catch(err => {
+        if (isManualCheck) Swal.fire("Info", "Tidak dapat terhubung ke server pembaruan.", "info");
       });
     }
 
@@ -973,12 +1155,14 @@
     let CURRENT_TAB = "dashboard";
     let chartInstance = null;
     
-    // Urutan Tab Navigasi Swipe
     const TAB_FLOW = ["dashboard", "surat-masuk", "surat-keluar", "buku-tamu", "agenda", "pegawai", "aset", "pengaturan"];
 
-    // Camera States
+    // Camera & QR Scanner States
     let currentStream = null;
+    let qrStream = null;
+    let qrAnimationId = null;
     let facingMode = "environment"; 
+    let qrFacingMode = "environment";
     let capturedBlob = null;
 
     const SCHEMA = {
@@ -990,9 +1174,9 @@
       },
       "surat-keluar": {
         collection: "SuratKeluar",
-        title: "Arsip Surat Keluar / SPT",
-        columns: ["NoSurat", "TglSurat", "Tujuan", "Perihal", "IsiRingkas", "Penandatangan", "FileUrl"],
-        labels: ["No Surat / SPT", "Tgl Surat", "Tujuan", "Perihal", "Isi Tugas / Ringkasan", "Penandatangan", "Tautan Berkas Drive"]
+        title: "Surat Perintah Tugas (SPT) & SPPD",
+        columns: ["NoSurat", "TglSurat", "Tujuan", "Perihal", "PetugasDitugaskan", "DasarTugas", "BebanAnggaran", "FileUrl"],
+        labels: ["No Surat / SPT", "Tgl Surat", "Tujuan / Lokasi", "Perihal / Maksud Tugas", "Pegawai Ditugaskan", "Dasar Pelaksanaan Tugas", "Pembebanan Anggaran (BOK/APBD)", "Tautan Berkas Drive"]
       },
       "buku-tamu": {
         collection: "BukuTamu",
@@ -1003,20 +1187,20 @@
       "agenda": {
         collection: "AgendaPuskesmas",
         title: "Agenda & Lokmin Puskesmas",
-        columns: ["TanggalMulai", "TanggalSelesai", "Kegiatan", "Lokasi", "Keterangan"],
-        labels: ["Tgl Mulai", "Tgl Selesai", "Kegiatan (Lokmin/Posyandu)", "Lokasi Ruang/Desa", "Keterangan / PJ"]
+        columns: ["TanggalMulai", "TanggalSelesai", "Kegiatan", "Lokasi", "Keterangan", "FileUrl"],
+        labels: ["Tgl Mulai", "Tgl Selesai", "Kegiatan (Lokmin/Posyandu)", "Lokasi Ruang/Desa", "Keterangan / PJ", "Link Notula/Foto (Drive)"]
       },
       "pegawai": {
         collection: "PegawaiNakes",
         title: "Pegawai & Tenaga Kesehatan",
-        columns: ["NIP_NRPTT", "Nama", "Profesi", "RuanganUnit", "PangkatGol", "NoSTR_SIP", "TMT", "FileUrl"],
-        labels: ["NIP / NRPTT", "Nama & Gelar", "Profesi (Dokter/Perawat/Bidan/TU)", "Unit (UGD/Rawat Inap/Poli)", "Pangkat/Gol", "No STR / SIP", "TMT", "File SK / STR (Drive)"]
+        columns: ["NIP_NRPTT", "Nama", "Profesi", "RuanganUnit", "PangkatGol", "NoSTR_SIP", "MasaBerlakuSTR", "TMT", "FileUrl"],
+        labels: ["NIP / NRPTT", "Nama & Gelar", "Profesi", "Unit (UGD/Inap/Poli)", "Pangkat/Gol", "No STR / SIP", "Masa Berlaku STR/SIP", "TMT", "File SK (Drive)"]
       },
       "aset": {
         collection: "InventarisAset",
         title: "Inventaris Sarpras & Alkes",
         columns: ["KodeBarang", "NamaBarang", "Kategori", "Jumlah", "Kondisi", "LokasiRuang", "FileUrl"],
-        labels: ["Kode Barang", "Nama Barang / Alkes", "Kategori (Alkes/Elektronik/Kendaraan)", "Jumlah", "Kondisi", "Lokasi Ruang", "Foto Aset (Drive)"]
+        labels: ["Kode Barang", "Nama Barang / Alkes", "Kategori (Alkes/Mebel)", "Jumlah", "Kondisi", "Lokasi Ruang", "Foto Aset (Drive)"]
       }
     };
 
@@ -1085,12 +1269,18 @@
         cameraModalEl.addEventListener("hidden.bs.modal", stopCameraStream);
       }
 
+      const qrModalEl = document.getElementById("qrScannerModal");
+      if (qrModalEl) {
+        qrModalEl.addEventListener("hide.bs.modal", stopQRScanner);
+        qrModalEl.addEventListener("hidden.bs.modal", stopQRScanner);
+      }
+
       window.addEventListener("blur", () => {
         if (currentStream) closeCameraScanner();
+        if (qrStream) closeQRScannerModal();
       });
     });
 
-    // Deteksi Gestur Usap Layar (Swipe) di HP
     function initTouchSwipeGestures() {
       let touchStartX = 0;
       let touchStartY = 0;
@@ -1100,7 +1290,6 @@
       const swipeTarget = document.getElementById("contentArea");
 
       swipeTarget.addEventListener('touchstart', (e) => {
-        // Jangan swipe jika sedang menyentuh tabel ber-scroll atau modal aktif
         if (e.target.closest('.table-responsive') || document.querySelector('.modal.show')) {
           touchStartX = 0;
           return;
@@ -1119,18 +1308,14 @@
       function handleSwipeGesture() {
         const deltaX = touchEndX - touchStartX;
         const deltaY = touchEndY - touchStartY;
-        const minSwipeDistance = 60; // Jarak minimal usap pixel
+        const minSwipeDistance = 60;
 
-        // Pastikan gerakan lebih dominan horizontal daripada vertikal
         if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > minSwipeDistance) {
           const currentIndex = TAB_FLOW.indexOf(CURRENT_TAB);
           
-          // Swipe Kiri -> Pindah ke Menu Selanjutnya
           if (deltaX < 0 && currentIndex < TAB_FLOW.length - 1) {
             switchTab(TAB_FLOW[currentIndex + 1], 'slide-left');
-          } 
-          // Swipe Kanan -> Pindah ke Menu Sebelumnya
-          else if (deltaX > 0 && currentIndex > 0) {
+          } else if (deltaX > 0 && currentIndex > 0) {
             switchTab(TAB_FLOW[currentIndex - 1], 'slide-right');
           }
         }
@@ -1144,6 +1329,7 @@
         }
         db = firebase.firestore();
         attachRealtimeListeners();
+        setTimeout(() => checkForAppUpdates(false), 2000);
       } catch (err) {
         console.warn("Firestore running in preview mode:", err);
       }
@@ -1160,7 +1346,6 @@
             list.push({ id: doc.id, ...doc.data() });
           });
 
-          // Urutkan PegawaiNakes berdasarkan baris Google Sheets (Urutan)
           if (colName === "PegawaiNakes") {
             list.sort((a, b) => {
               const urutA = a.Urutan !== undefined ? Number(a.Urutan) : 9999;
@@ -1254,7 +1439,7 @@
     }
 
     // ==========================================
-    // 6. CRUD VIEW & LIVE FILTER
+    // 6. CRUD VIEW, PERIOD FILTER, QR CODE, & EXPIRY BADGES
     // ==========================================
     function renderCrudView(tabId) {
       const config = SCHEMA[tabId];
@@ -1262,12 +1447,16 @@
 
       document.getElementById("crudTitle").innerText = config.title;
       document.getElementById("btnUploadBatch").style.display = (tabId === "pegawai" || tabId === "aset") ? "inline-block" : "none";
+      document.getElementById("btnScanQRAset").style.display = (tabId === "aset") ? "inline-block" : "none";
       document.getElementById("liveSearchInput").value = "";
+      document.getElementById("filterPeriodeSelect").value = "all";
+
+      document.getElementById("filterPeriodeSelect").style.display = (tabId === 'pegawai' || tabId === 'aset') ? 'none' : 'block';
 
       const thead = document.getElementById("tableHeader");
       let trHead = "<tr><th style='width: 50px;'>No</th>";
       config.labels.forEach(l => trHead += `<th>${l}</th>`);
-      trHead += "<th class='text-center' style='width: 120px;'>Aksi</th></tr>";
+      trHead += "<th class='text-center' style='width: 140px;'>Aksi</th></tr>";
       thead.innerHTML = trHead;
 
       populateTableRows(SITU_DATA[config.collection] || []);
@@ -1289,15 +1478,41 @@
         config.columns.forEach(col => {
           let val = r[col] || "-";
           
-          if (col === "Nama") {
+          if (col === "Nama" || col === "Kegiatan") {
             const initials = val.substring(0, 2).toUpperCase();
             tr += `<td><div class="d-flex align-items-center"><span class="avatar-initials">${initials}</span><span class="fw-semibold">${val}</span></div></td>`;
           } else if (col === "Kondisi") {
             let badgeClass = val === "Baik" ? "badge-teal" : (val.includes("Ringan") ? "badge-amber" : "badge-rose");
             tr += `<td><span class="badge-pill ${badgeClass}">${val}</span></td>`;
+          } else if (col === "MasaBerlakuSTR") {
+            if (val && val !== "-" && val !== "") {
+              const expiryDate = new Date(val);
+              const today = new Date();
+              const diffTime = expiryDate - today;
+              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+              
+              let badge = "";
+              if (diffDays > 180) {
+                badge = `<span class="badge bg-success-subtle text-success border border-success-subtle mt-1"><i class="fa-solid fa-circle-check me-1"></i>Aman (${Math.floor(diffDays/30)} bln)</span>`;
+              } else if (diffDays > 0) {
+                badge = `<span class="badge bg-warning-subtle text-warning border border-warning-subtle mt-1"><i class="fa-solid fa-triangle-exclamation me-1"></i>Peringatan (${Math.floor(diffDays/30)} bln)</span>`;
+              } else {
+                badge = `<span class="badge bg-danger-subtle text-danger border border-danger-subtle mt-1"><i class="fa-solid fa-circle-xmark me-1"></i>Kedaluwarsa</span>`;
+              }
+              
+              tr += `<td><div>${val}</div>${badge}</td>`;
+            } else {
+              tr += `<td>-</td>`;
+            }
+          } else if (col === "PetugasDitugaskan") {
+            if (Array.isArray(val)) {
+              tr += `<td><span class="badge bg-light text-dark border">${val.length} Petugas</span> <small class="text-muted d-block text-truncate" style="max-width:180px;">${val.join(', ')}</small></td>`;
+            } else {
+              tr += `<td>${val}</td>`;
+            }
           } else if (col === "FileUrl") {
             if (val && val.startsWith("http")) {
-              tr += `<td><a href="${val}" target="_blank" class="badge bg-light text-primary border text-decoration-none py-2 px-3 rounded-3"><i class="fa-brands fa-google-drive me-1 text-success"></i> Buka Berkas</a></td>`;
+              tr += `<td><a href="${val}" target="_blank" class="badge bg-light text-primary border text-decoration-none py-2 px-3 rounded-3"><i class="fa-brands fa-google-drive me-1 text-success"></i> Buka Link</a></td>`;
             } else {
               tr += `<td>${val}</td>`;
             }
@@ -1306,9 +1521,16 @@
           }
         });
 
+        let extraBtns = "";
+        if (CURRENT_TAB === 'surat-keluar') {
+          extraBtns = `<button class="btn btn-outline-success border-0" onclick="printSPTdanSPPD('${r.id}')" title="Cetak SPT & SPPD"><i class="fa-solid fa-print"></i></button>`;
+        } else if (CURRENT_TAB === 'aset') {
+          extraBtns = `<button class="btn btn-outline-dark border-0" onclick="printQR('${r.KodeBarang}', '${r.NamaBarang}', '${r.RuanganLokasi || r.LokasiRuang || ''}')" title="Cetak Label QR"><i class="fa-solid fa-qrcode"></i></button>`;
+        }
+
         tr += `<td class='text-center'>
           <div class="btn-group btn-group-sm">
-            ${CURRENT_TAB === 'surat-keluar' ? `<button class="btn btn-outline-success border-0" onclick="printSingleSurat('${r.id}')" title="Cetak Berkas"><i class="fa-solid fa-print"></i></button>` : ''}
+            ${extraBtns}
             <button class="btn btn-outline-primary border-0" onclick="editRecord('${CURRENT_TAB}', '${r.id}')"><i class="fa-solid fa-pen"></i></button>
             <button class="btn btn-outline-danger border-0" onclick="deleteRecord('${CURRENT_TAB}', '${r.id}')"><i class="fa-solid fa-trash"></i></button>
           </div>
@@ -1317,20 +1539,208 @@
       });
     }
 
-    function filterTableLive() {
+    function getFilteredRows() {
       const keyword = document.getElementById("liveSearchInput").value.toLowerCase();
+      const periode = document.getElementById("filterPeriodeSelect").value;
       const config = SCHEMA[CURRENT_TAB];
       const allRows = SITU_DATA[config.collection] || [];
+      const currentYear = new Date().getFullYear();
 
-      const filtered = allRows.filter(row => {
-        return config.columns.some(col => String(row[col] || "").toLowerCase().includes(keyword));
+      return allRows.filter(row => {
+        const matchText = config.columns.some(col => {
+          let v = row[col];
+          if (Array.isArray(v)) v = v.join(" ");
+          return String(v || "").toLowerCase().includes(keyword);
+        });
+
+        if (!matchText) return false;
+        if (periode === 'all' || CURRENT_TAB === 'pegawai' || CURRENT_TAB === 'aset') return true;
+
+        const dateVal = row.TglSurat || row.Tanggal || row.TanggalMulai || row.TMT;
+        if (!dateVal) return true;
+
+        const rowDate = new Date(dateVal);
+        const rowMonth = rowDate.getMonth() + 1;
+        const rowYear = rowDate.getFullYear();
+
+        if (rowYear !== currentYear) return false;
+
+        if (periode === 'this_month') return rowMonth === (new Date().getMonth() + 1);
+        if (periode === 'q1') return rowMonth >= 1 && rowMonth <= 3;
+        if (periode === 'q2') return rowMonth >= 4 && rowMonth <= 6;
+        if (periode === 'q3') return rowMonth >= 7 && rowMonth <= 9;
+        if (periode === 'q4') return rowMonth >= 10 && rowMonth <= 12;
+        return true;
       });
+    }
 
-      populateTableRows(filtered);
+    function filterTableLive() {
+      populateTableRows(getFilteredRows());
     }
 
     // ==========================================
-    // 7. KAMERA PINTAR & OCR LIFECYCLE MANAGEMENT
+    // 7. EXPORT TO EXCEL & BACKUP DATABASE FULL
+    // ==========================================
+    function exportCurrentTableToExcel() {
+      const config = SCHEMA[CURRENT_TAB];
+      const rows = getFilteredRows();
+
+      if (rows.length === 0) {
+        return Swal.fire("Data Kosong", "Tidak ada data yang dapat diekspor pada filter ini.", "warning");
+      }
+
+      // Format Baris Kolom Sesuai Label
+      const excelData = rows.map((r, index) => {
+        let obj = { "No": index + 1 };
+        config.columns.forEach((col, idx) => {
+          let val = r[col];
+          if (Array.isArray(val)) val = val.join(", ");
+          obj[config.labels[idx]] = val || "-";
+        });
+        return obj;
+      });
+
+      const ws = XLSX.utils.json_to_sheet(excelData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, config.title.substring(0, 30));
+
+      const filename = `Rekap_${config.collection}_${Date.now()}.xlsx`;
+      XLSX.writeFile(wb, filename);
+
+      Swal.fire({
+        icon: "success",
+        title: "Berhasil Diekspor",
+        text: `Data ${config.title} berhasil diunduh ke Excel.`,
+        timer: 1500,
+        showConfirmButton: false
+      });
+    }
+
+    function backupFullDatabaseJSON() {
+      if (!SITU_DATA) return Swal.fire("Data Kosong", "Database belum terisi.", "warning");
+
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(SITU_DATA, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `BACKUP_SITU_PUSKESMAS_${Date.now()}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+
+      Swal.fire({
+        icon: "success",
+        title: "Backup Berhasil",
+        text: "Seluruh basis data sistem berhasil diunduh.",
+        timer: 1500,
+        showConfirmButton: false
+      });
+    }
+
+    // ==========================================
+    // 8. SCANNER QR CODE REALTIME ASET (STOK OPNAME)
+    // ==========================================
+    function openQRScannerModal() {
+      const qrModalEl = document.getElementById("qrScannerModal");
+      const qrModal = new bootstrap.Modal(qrModalEl, { backdrop: 'static', keyboard: true });
+      qrModal.show();
+      startQRScanner();
+    }
+
+    async function startQRScanner() {
+      stopQRScanner();
+      try {
+        qrStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: qrFacingMode, width: { ideal: 1280 }, height: { ideal: 720 } },
+          audio: false
+        });
+        const video = document.getElementById("qrVideo");
+        video.srcObject = qrStream;
+        video.setAttribute("playsinline", true);
+        video.play();
+        qrAnimationId = requestAnimationFrame(scanQRCodeTick);
+      } catch (err) {
+        closeQRScannerModal();
+        Swal.fire("Akses Kamera Ditolak", "Izinkan akses kamera untuk memindai QR Code.", "error");
+      }
+    }
+
+    function scanQRCodeTick() {
+      const video = document.getElementById("qrVideo");
+      const canvas = document.getElementById("qrCanvas");
+      if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        canvas.height = video.videoHeight;
+        canvas.width = video.videoWidth;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const code = jsQR(imageData.data, imageData.width, imageData.height, {
+          inversionAttempts: "dontInvert",
+        });
+
+        if (code && code.data) {
+          handleScannedQRCode(code.data);
+          return;
+        }
+      }
+      qrAnimationId = requestAnimationFrame(scanQRCodeTick);
+    }
+
+    function handleScannedQRCode(qrText) {
+      closeQRScannerModal();
+      
+      // Format QR: KODE: XYZ | ASET: ABC | RUANG: DEF
+      const matchKode = qrText.match(/KODE:\s*([^\|]+)/i);
+      const kodeTarget = matchKode ? matchKode[1].trim() : qrText.trim();
+
+      const allAset = SITU_DATA.InventarisAset || [];
+      const foundAset = allAset.find(a => a.KodeBarang.toLowerCase() === kodeTarget.toLowerCase() || qrText.includes(a.KodeBarang));
+
+      if (foundAset) {
+        Swal.fire({
+          icon: "success",
+          title: "Aset Ditemukan!",
+          html: `<b>${foundAset.NamaBarang}</b> (${foundAset.KodeBarang})<br/><small class="text-muted">Membuka formulir pembaruan kondisi...</small>`,
+          timer: 1500,
+          showConfirmButton: false
+        }).then(() => {
+          editRecord('aset', foundAset.id);
+        });
+      } else {
+        Swal.fire({
+          icon: "warning",
+          title: "Aset Tidak Terdaftar",
+          text: `Kode Barang: ${kodeTarget} tidak ditemukan di database.`,
+        });
+      }
+    }
+
+    function stopQRScanner() {
+      if (qrAnimationId) {
+        cancelAnimationFrame(qrAnimationId);
+        qrAnimationId = null;
+      }
+      if (qrStream) {
+        qrStream.getTracks().forEach(track => track.stop());
+        qrStream = null;
+      }
+      const video = document.getElementById("qrVideo");
+      if (video) video.srcObject = null;
+    }
+
+    function closeQRScannerModal() {
+      stopQRScanner();
+      const modalEl = document.getElementById("qrScannerModal");
+      const modalInstance = bootstrap.Modal.getInstance(modalEl);
+      if (modalInstance) modalInstance.hide();
+    }
+
+    function switchQRCameraFacing() {
+      qrFacingMode = (qrFacingMode === "environment") ? "user" : "environment";
+      startQRScanner();
+    }
+
+    // ==========================================
+    // 9. KAMERA PINTAR & OCR LIFECYCLE MANAGEMENT
     // ==========================================
     function openCameraScanner() {
       capturedBlob = null;
@@ -1338,11 +1748,7 @@
       document.getElementById("cameraCapturedBadge").classList.add("d-none");
       
       const camModalEl = document.getElementById("cameraModal");
-      const camModal = new bootstrap.Modal(camModalEl, {
-        backdrop: 'static',
-        keyboard: true
-      });
-      
+      const camModal = new bootstrap.Modal(camModalEl, { backdrop: 'static', keyboard: true });
       camModal.show();
       startCameraStream();
     }
@@ -1351,11 +1757,7 @@
       stopCameraStream();
       try {
         currentStream = await navigator.mediaDevices.getUserMedia({
-          video: { 
-            facingMode: facingMode, 
-            width: { ideal: 1280 }, 
-            height: { ideal: 720 } 
-          },
+          video: { facingMode: facingMode, width: { ideal: 1280 }, height: { ideal: 720 } },
           audio: false
         });
         document.getElementById("cameraVideo").srcObject = currentStream;
@@ -1378,9 +1780,7 @@
       stopCameraStream();
       const modalEl = document.getElementById("cameraModal");
       const modalInstance = bootstrap.Modal.getInstance(modalEl);
-      if (modalInstance) {
-        modalInstance.hide();
-      }
+      if (modalInstance) modalInstance.hide();
     }
 
     function switchCameraFacing() {
@@ -1426,14 +1826,10 @@
       
       let noSuratMatch = rawText.match(/(?:nomor|no|nomor\s*surat|nomor\s*:\s*|no\s*:\s*)\s*[:.\s]?\s*([A-Za-z0-9\.\-\_\/]{4,50})/i);
       if (!noSuratMatch) noSuratMatch = rawText.match(/\b\d{3,4}\/[A-Za-z0-9\.\-]+\/\d{4}\b/i);
-      if (noSuratMatch && document.getElementById("inp_NoSurat")) {
-        document.getElementById("inp_NoSurat").value = noSuratMatch[1] ? noSuratMatch[1].trim() : noSuratMatch[0].trim();
-      }
+      if (noSuratMatch && document.getElementById("inp_NoSurat")) document.getElementById("inp_NoSurat").value = noSuratMatch[1] ? noSuratMatch[1].trim() : noSuratMatch[0].trim();
 
       let perihalMatch = rawText.match(/(?:perihal|hal|lampiran|tentang)\s*[:.\s]\s*([^\n\r]+)/i);
-      if (perihalMatch && document.getElementById("inp_Perihal")) {
-        document.getElementById("inp_Perihal").value = perihalMatch[1].replace(/[:\-]/g, '').trim();
-      }
+      if (perihalMatch && document.getElementById("inp_Perihal")) document.getElementById("inp_Perihal").value = perihalMatch[1].replace(/[:\-]/g, '').trim();
 
       let tglMatch = rawText.match(/(\d{1,2})[\s\-\/\.](Januari|Februari|Maret|April|Mei|Juni|Juli|Agustus|September|Oktober|November|Desember|\d{1,2})[\s\-\/\.](\d{4})/i);
       if (tglMatch) {
@@ -1456,22 +1852,16 @@
       }
 
       let pengirimMatch = rawText.match(/(?:dinas|badan|uptd|kementerian|puskesmas|kantor|bupati|sekretariat)\s+([^\n\r]+)/i);
-      if (pengirimMatch && document.getElementById("inp_Pengirim")) {
-        document.getElementById("inp_Pengirim").value = pengirimMatch[0].substring(0, 50).trim();
-      }
+      if (pengirimMatch && document.getElementById("inp_Pengirim")) document.getElementById("inp_Pengirim").value = pengirimMatch[0].substring(0, 50).trim();
 
       let nipMatch = rawText.match(/(?:nip|nrptt|nik)\s*[:.\s]?\s*(\d{8,18})/i);
-      if (nipMatch && document.getElementById("inp_NIP_NRPTT")) {
-        document.getElementById("inp_NIP_NRPTT").value = nipMatch[1].trim();
-      }
+      if (nipMatch && document.getElementById("inp_NIP_NRPTT")) document.getElementById("inp_NIP_NRPTT").value = nipMatch[1].trim();
 
-      if (document.getElementById("inp_IsiRingkas") && !document.getElementById("inp_IsiRingkas").value) {
-        document.getElementById("inp_IsiRingkas").value = lines.slice(0, 4).join(" ");
-      }
+      if (document.getElementById("inp_DasarTugas") && !document.getElementById("inp_DasarTugas").value) document.getElementById("inp_DasarTugas").value = lines.slice(0, 4).join(" ");
     }
 
     // ==========================================
-    // 8. GOOGLE DRIVE ASYNC UPLOAD BRIDGE
+    // 10. GOOGLE DRIVE ASYNC UPLOAD BRIDGE
     // ==========================================
     async function uploadBlobToGoogleDrive(fileOrBlob, fileName) {
       const s = JSON.parse(localStorage.getItem("SITU_PKM_SETTINGS") || JSON.stringify(DEFAULT_PROFILE));
@@ -1481,23 +1871,13 @@
         const reader = new FileReader();
         reader.onload = async () => {
           const base64 = reader.result.split(',')[1];
-          const payload = {
-            base64: base64,
-            fileName: fileName,
-            mimeType: fileOrBlob.type || "image/jpeg"
-          };
+          const payload = { base64: base64, fileName: fileName, mimeType: fileOrBlob.type || "image/jpeg" };
 
           try {
-            const response = await fetch(gasEndpoint, {
-              method: "POST",
-              body: JSON.stringify(payload)
-            });
+            const response = await fetch(gasEndpoint, { method: "POST", body: JSON.stringify(payload) });
             const resData = await response.json();
-            if (resData.status === "success") {
-              resolve(resData.url);
-            } else {
-              reject(resData.message);
-            }
+            if (resData.status === "success") resolve(resData.url);
+            else reject(resData.message);
           } catch (e) {
             reject(e.toString());
           }
@@ -1507,10 +1887,11 @@
     }
 
     // ==========================================
-    // 9. NON-BLOCKING BACKGROUND SAVE ENGINE
+    // 11. NON-BLOCKING BACKGROUND SAVE ENGINE
     // ==========================================
     function openModalInput() {
       stopCameraStream();
+      stopQRScanner();
 
       const config = SCHEMA[CURRENT_TAB];
       document.getElementById("modalTitle").innerText = "Tambah " + config.title;
@@ -1522,7 +1903,16 @@
       document.getElementById("cameraCapturedBadge").classList.add("d-none");
       
       const uploadSection = document.getElementById("uploadFileSection");
-      uploadSection.style.display = (CURRENT_TAB === "buku-tamu" || CURRENT_TAB === "agenda") ? "none" : "block";
+      const labelUploadDrive = document.getElementById("labelUploadDrive");
+      if (CURRENT_TAB === 'agenda') {
+        uploadSection.style.display = "block";
+        labelUploadDrive.innerHTML = '<i class="fa-brands fa-google-drive"></i> Upload Notula / Dokumentasi Lokmin';
+      } else if (CURRENT_TAB === 'buku-tamu') {
+        uploadSection.style.display = "none";
+      } else {
+        uploadSection.style.display = "block";
+        labelUploadDrive.innerHTML = '<i class="fa-brands fa-google-drive"></i> Upload Berkas Fisik ke Google Drive (Opsional)';
+      }
 
       const container = document.getElementById("dynamicFormFields");
       container.innerHTML = "";
@@ -1531,11 +1921,27 @@
         let inputHtml = "";
         let lbl = config.labels[idx];
 
-        if (col.includes("Tgl") || col === "Tanggal" || col === "TMT") {
+        if (col.includes("Tgl") || col === "Tanggal" || col === "TMT" || col === "MasaBerlakuSTR") {
           inputHtml = `<input type="date" class="form-control" name="${col}" id="inp_${col}" required>`;
         } else if (col === "Kondisi") {
           inputHtml = `<select class="form-select" name="${col}" id="inp_${col}"><option value="Baik">Baik</option><option value="Rusak Ringan">Rusak Ringan</option><option value="Rusak Berat">Rusak Berat</option></select>`;
-        } else if (col === "IsiRingkas" || col === "Keperluan" || col === "Keterangan") {
+        } else if (col === "PetugasDitugaskan") {
+          const pegawaiList = SITU_DATA.PegawaiNakes || [];
+          let optionsHtml = pegawaiList.map(p => `
+            <div class="form-check form-check-inline mb-1">
+              <input class="form-check-input check-nakes" type="checkbox" value="${p.Nama}" id="nakes_${p.id}">
+              <label class="form-check-label small" for="nakes_${p.id}">${p.Nama} <span class="text-muted">(${p.Profesi})</span></label>
+            </div>
+          `).join('');
+
+          inputHtml = `
+            <div class="border rounded-3 p-3 bg-white" style="max-height: 160px; overflow-y: auto;">
+              ${optionsHtml || '<small class="text-muted">Belum ada master data pegawai. Tambahkan di menu Pegawai & Nakes.</small>'}
+            </div>
+          `;
+        } else if (col === "BebanAnggaran") {
+          inputHtml = `<select class="form-select" name="${col}" id="inp_${col}"><option value="BOK Puskesmas">BOK (Bantuan Operasional Kesehatan)</option><option value="APBD Kabupaten">APBD Kabupaten</option><option value="JKN / Kapitasi">Dana Kapitasi JKN</option><option value="-">Tanpa Beban Biaya</option></select>`;
+        } else if (col === "IsiRingkas" || col === "Keperluan" || col === "Keterangan" || col === "DasarTugas") {
           inputHtml = `<textarea class="form-control" name="${col}" id="inp_${col}" rows="2"></textarea>`;
         } else if (col === "FileUrl") {
           inputHtml = `<input type="text" class="form-control" name="${col}" id="inp_${col}" placeholder="Link Drive (Otomatis terisi jika upload file)">`;
@@ -1543,7 +1949,8 @@
           inputHtml = `<input type="text" class="form-control" name="${col}" id="inp_${col}" required>`;
         }
 
-        container.innerHTML += `<div class="col-md-6"><label class="form-label small fw-bold text-muted">${lbl}</label>${inputHtml}</div>`;
+        const colWidth = (col === "PetugasDitugaskan" || col === "DasarTugas") ? "col-12" : "col-md-6";
+        container.innerHTML += `<div class="${colWidth}"><label class="form-label small fw-bold text-muted">${lbl}</label>${inputHtml}</div>`;
       });
 
       new bootstrap.Modal(document.getElementById("crudModal")).show();
@@ -1559,8 +1966,15 @@
       document.getElementById("dyn_id").value = docId;
 
       config.columns.forEach(col => {
-        const inp = document.getElementById(`inp_${col}`);
-        if (inp) inp.value = data[col] || "";
+        if (col === "PetugasDitugaskan") {
+          const selected = data[col] || [];
+          document.querySelectorAll(".check-nakes").forEach(chk => {
+            chk.checked = selected.includes(chk.value);
+          });
+        } else {
+          const inp = document.getElementById(`inp_${col}`);
+          if (inp) inp.value = data[col] || "";
+        }
       });
     }
 
@@ -1575,7 +1989,13 @@
 
       let payload = { updatedAt: new Date().toISOString() };
       config.columns.forEach(col => {
-        payload[col] = formData.get(col) || "";
+        if (col === "PetugasDitugaskan") {
+          let nakesChecked = [];
+          document.querySelectorAll(".check-nakes:checked").forEach(chk => nakesChecked.push(chk.value));
+          payload[col] = nakesChecked;
+        } else {
+          payload[col] = formData.get(col) || "";
+        }
       });
 
       const fileToUpload = (fileInput && fileInput.files.length > 0) ? fileInput.files[0] : null;
@@ -1633,7 +2053,7 @@
     }
 
     // ==========================================
-    // 10. BATCH UPLOAD EXCEL
+    // 12. BATCH UPLOAD EXCEL
     // ==========================================
     function openModalBatch() {
       new bootstrap.Modal(document.getElementById("batchModal")).show();
@@ -1686,7 +2106,7 @@
     }
 
     // ==========================================
-    // 11. SETTINGS & PROFILE MANAGEMENT
+    // 13. SETTINGS & PROFILE MANAGEMENT
     // ==========================================
     function loadSettingsToUI() {
       const s = JSON.parse(localStorage.getItem("SITU_PKM_SETTINGS") || JSON.stringify(DEFAULT_PROFILE));
@@ -1734,7 +2154,7 @@
     }
 
     // ==========================================
-    // 12. HIGH-DEFINITION PRINT ENGINE
+    // 14. HIGH-DEFINITION PRINT ENGINE (SPT & SPPD)
     // ==========================================
     function setupPrintKop() {
       const s = JSON.parse(localStorage.getItem("SITU_PKM_SETTINGS") || JSON.stringify(DEFAULT_PROFILE));
@@ -1771,35 +2191,150 @@
       setTimeout(() => { document.head.removeChild(style); }, 1000);
     }
 
-    function printSingleSurat(docId) {
+    function printSPTdanSPPD(docId) {
       setupPrintKop();
       const data = (SITU_DATA.SuratKeluar || []).find(x => x.id === docId);
       if (!data) return;
 
+      const s = JSON.parse(localStorage.getItem("SITU_PKM_SETTINGS") || JSON.stringify(DEFAULT_PROFILE));
+      const allPegawai = SITU_DATA.PegawaiNakes || [];
+      const petugasList = Array.isArray(data.PetugasDitugaskan) ? data.PetugasDitugaskan : [data.PetugasDitugaskan || "-"];
+
+      let rowsPetugas = petugasList.map((nama, idx) => {
+        const detail = allPegawai.find(p => p.Nama === nama) || {};
+        return `
+          <tr>
+            <td style="text-align:center;">${idx + 1}</td>
+            <td><b>${nama}</b></td>
+            <td>${detail.NIP_NRPTT || '-'}</td>
+            <td>${detail.PangkatGol || '-'}</td>
+            <td>${detail.Profesi || '-'}</td>
+          </tr>
+        `;
+      }).join('');
+
       let html = `
-        <div style="text-align:center; margin-bottom: 25px;">
-          <h4 style="margin:0; text-decoration: underline; font-weight: bold;">SURAT PERINTAH TUGAS / KETERANGAN</h4>
+        <!-- HALAMAN 1: SURAT PERINTAH TUGAS (SPT) -->
+        <div style="text-align:center; margin-bottom: 20px;">
+          <h4 style="margin:0; text-decoration: underline; font-weight: bold;">SURAT PERINTAH TUGAS</h4>
           <p style="margin:0;">Nomor: ${data.NoSurat}</p>
         </div>
-        <div style="font-size: 11pt; line-height: 1.6;">
-          <p>Yang bertanda tangan di bawah ini Kepala UPTD Puskesmas menerangkan bahwa:</p>
-          <table style="width:100%; margin: 15px 0;">
-            <tr><td style="width:170px;">Perihal / Tugas</td><td>: <b>${data.Perihal}</b></td></tr>
-            <tr><td>Tujuan Penugasan</td><td>: ${data.Tujuan}</td></tr>
-            <tr><td>Tanggal Surat / Tugas</td><td>: ${data.TglSurat}</td></tr>
+
+        <div style="font-size: 10.5pt; line-height: 1.5;">
+          <table style="width:100%; margin-bottom: 12px;">
+            <tr><td style="width:120px; vertical-align:top;"><b>Dasar</b></td><td style="width:10px; vertical-align:top;">:</td><td>${data.DasarTugas || 'DPA / Program Kerja Puskesmas Tahun Anggaran Berjalan.'}</td></tr>
           </table>
-          <p style="text-align: justify;">${data.IsiRingkas || 'Demikian surat perintah tugas ini diterbitkan untuk dilaksanakan dengan penuh rasa tanggung jawab.'}</p>
+
+          <p style="text-align:center; font-weight:bold; margin: 15px 0;">MEMERINTAHKAN:</p>
+
+          <p style="margin-bottom: 6px;">Kepada:</p>
+          <table class="table-print-bordered mb-3">
+            <thead>
+              <tr style="background:#f1f5f9;">
+                <th style="width:35px; text-align:center;">No</th>
+                <th>Nama Petugas</th>
+                <th>NIP / NRPTT</th>
+                <th>Pangkat / Gol</th>
+                <th>Jabatan / Profesi</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsPetugas}
+            </tbody>
+          </table>
+
+          <table style="width:100%; margin-top: 10px;">
+            <tr><td style="width:120px; vertical-align:top;"><b>Untuk</b></td><td style="width:10px; vertical-align:top;">:</td><td>1. ${data.Perihal}</td></tr>
+            <tr><td></td><td></td><td>2. Lokasi Tujuan: <b>${data.Tujuan}</b></td></tr>
+            <tr><td></td><td></td><td>3. Tanggal Pelaksanaan: <b>${data.TglSurat}</b></td></tr>
+            <tr><td></td><td></td><td>4. Pembebanan Biaya: <b>${data.BebanAnggaran || 'BOK Puskesmas'}</b></td></tr>
+          </table>
+          <p style="text-align: justify; margin-top: 15px;">Demikian Surat Perintah Tugas ini dibuat untuk dilaksanakan dengan penuh tanggung jawab dan menyampaikan laporan setelah selesai melaksanakan tugas.</p>
         </div>
+
+        <!-- HALAMAN 2: FORMAT BAKU LEMBAR SPPD & VISUM -->
+        <div class="page-break"></div>
+        <div style="text-align:center; margin-bottom: 15px;">
+          <h4 style="margin:0; text-decoration: underline; font-weight: bold;">SURAT PERINTAH PERJALANAN DINAS (SPPD)</h4>
+          <p style="margin:0;">Nomor: SPPD/${data.NoSurat}</p>
+        </div>
+
+        <table class="table-print-bordered" style="font-size: 9.5pt;">
+          <tr><td style="width:30px; text-align:center;">1.</td><td style="width:200px;">Pejabat Yang Memberi Perintah</td><td>${s.kapus}</td></tr>
+          <tr><td style="text-align:center;">2.</td><td>Nama Pegawai Yang Diperintah</td><td><b>${petugasList[0] || '-'}</b> ${petugasList.length > 1 ? `<i>(dan kawan-kawan / ${petugasList.length} orang)</i>` : ''}</td></tr>
+          <tr><td style="text-align:center;">3.</td><td>Maksud Perjalanan Dinas</td><td>${data.Perihal}</td></tr>
+          <tr><td style="text-align:center;">4.</td><td>Alat Angkutan Yang Digunakan</td><td>Kendaraan Dinas / Darat / Air</td></tr>
+          <tr><td style="text-align:center;">5.</td><td>Tempat Berangkat<br/>Tempat Tujuan</td><td>Puskesmas<br/><b>${data.Tujuan}</b></td></tr>
+          <tr><td style="text-align:center;">6.</td><td>Lamanya Perjalanan Dinas<br/>Tanggal Berangkat</td><td>1 (Satu) Hari<br/>${data.TglSurat}</td></tr>
+          <tr><td style="text-align:center;">7.</td><td>Pembebanan Anggaran</td><td>${data.BebanAnggaran || 'BOK Puskesmas'}</td></tr>
+        </table>
+
+        <!-- Lembar Visum Instansi Tujuan -->
+        <table class="table-print-bordered mt-3" style="font-size: 9pt;">
+          <tr>
+            <td style="width:50%; vertical-align:top; height:120px;">
+              <p class="m-0">I. Berangkat dari : Puskesmas<br/>Pada Tanggal : ${data.TglSurat}<br/>Ke Tempat : ${data.Tujuan}</p>
+              <div style="text-align:center; margin-top:20px;">
+                <p class="m-0">Kepala UPTD Puskesmas,</p>
+                <div style="height:45px;"></div>
+                <p class="m-0 fw-bold"><u>${s.kapus}</u></p>
+              </div>
+            </td>
+            <td style="width:50%; vertical-align:top;">
+              <p class="m-0">II. Tiba di : ${data.Tujuan}<br/>Pada Tanggal : ${data.TglSurat}<br/>Kepala Desa / Pejabat Setempat,</p>
+              <div style="height:65px;"></div>
+              <p class="m-0">(........................................................)</p>
+            </td>
+          </tr>
+        </table>
       `;
 
       document.getElementById("printContent").innerHTML = html;
 
       const style = document.createElement('style');
-      style.innerHTML = `@page { size: portrait; margin: 15mm; }`;
+      style.innerHTML = `@page { size: portrait; margin: 12mm; }`;
       document.head.appendChild(style);
 
       window.print();
       setTimeout(() => { document.head.removeChild(style); }, 1000);
+    }
+
+    function printQR(kodeBarang, namaBarang, lokasiRuang) {
+      const s = JSON.parse(localStorage.getItem("SITU_PKM_SETTINGS") || JSON.stringify(DEFAULT_PROFILE));
+      const puskesmasName = s.puskesmas || "UPTD PUSKESMAS";
+      
+      const qrData = encodeURIComponent(`KODE: ${kodeBarang} | ASET: ${namaBarang} | RUANG: ${lokasiRuang}`);
+      const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${qrData}`;
+
+      let html = `
+        <div style="text-align:center; padding: 20px; border: 2px dashed #000; width: 280px; margin: 0 auto; font-family: sans-serif;">
+          <h5 style="margin: 0; font-weight: bold; font-size: 14px;">${puskesmasName}</h5>
+          <hr style="margin: 8px 0; border-top: 1px solid #000;">
+          <img src="${qrImageUrl}" style="width: 140px; height: 140px; margin: 10px 0;">
+          <p style="margin: 2px 0; font-size: 13px;"><b>Kode:</b> ${kodeBarang}</p>
+          <p style="margin: 2px 0; font-size: 13px;"><b>Barang:</b> ${namaBarang}</p>
+          <p style="margin: 2px 0; font-size: 11px; color: #555;">Ruang: ${lokasiRuang}</p>
+        </div>
+      `;
+
+      document.querySelector(".kop-surat").style.display = "none";
+      document.querySelector(".barcode-box").style.display = "none";
+      document.querySelector(".ttd-box").style.display = "none";
+
+      document.getElementById("printContent").innerHTML = html;
+
+      const style = document.createElement('style');
+      style.innerHTML = `@page { size: portrait; margin: 10mm; }`;
+      document.head.appendChild(style);
+
+      window.print();
+
+      setTimeout(() => { 
+        document.head.removeChild(style); 
+        document.querySelector(".kop-surat").style.display = "flex";
+        document.querySelector(".barcode-box").style.display = "block";
+        document.querySelector(".ttd-box").style.display = "block";
+      }, 1000);
     }
   </script>
 </body>
