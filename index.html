@@ -63,15 +63,15 @@
       background: rgba(255, 255, 255, 0.96);
       backdrop-filter: blur(16px);
       border-radius: 24px;
-      padding: 36px 28px;
+      padding: 32px 28px;
       width: 100%;
-      max-width: 400px;
+      max-width: 420px;
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
       text-align: center;
     }
     .auth-input-group {
       position: relative;
-      margin: 24px 0 16px 0;
+      margin: 16px 0;
     }
     .auth-input-group input {
       width: 100%;
@@ -105,6 +105,23 @@
       min-height: 100vh;
     }
 
+    /* Offline Alert Bar */
+    #offlineBanner {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: #ea580c;
+      color: #fff;
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-align: center;
+      padding: 6px 12px;
+      z-index: 10000;
+      display: none;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    }
+
     /* Sidebar Pro */
     .sidebar {
       width: 270px;
@@ -125,11 +142,11 @@
     }
     .sidebar .nav-link {
       color: #ccfbf1;
-      padding: 12px 18px;
-      font-size: 0.9rem;
+      padding: 11px 18px;
+      font-size: 0.88rem;
       font-weight: 500;
       border-radius: 12px;
-      margin: 4px 14px;
+      margin: 3px 14px;
       display: flex;
       align-items: center;
       gap: 14px;
@@ -215,6 +232,7 @@
     .grad-2 { background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%); }
     .grad-3 { background: linear-gradient(135deg, #d97706 0%, #ea580c 100%); }
     .grad-4 { background: linear-gradient(135deg, #e11d48 0%, #be123c 100%); }
+    .grad-5 { background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%); }
 
     /* Akses Cepat Quick Action Cards */
     .quick-action-card {
@@ -516,19 +534,30 @@
 </head>
 <body>
 
-  <!-- Layar Login Sandi Kasatmata -->
+  <!-- Offline Status Alert -->
+  <div id="offlineBanner"><i class="fa-solid fa-wifi-slash me-2"></i>Mode Offline Aktif - Data disimpan sementara di memori lokal &amp; otomatis tersinkron saat internet terhubung.</div>
+
+  <!-- Layar Login Multi-User & Sandi Kasatmata -->
   <div id="authLockScreen">
     <div class="auth-card animate__animated animate__zoomIn">
-      <div class="p-3 bg-light rounded-circle d-inline-flex mb-3 shadow-sm" style="color: var(--primary-teal);">
+      <div class="p-3 bg-light rounded-circle d-inline-flex mb-2 shadow-sm" style="color: var(--primary-teal);">
         <i class="fa-solid fa-hospital-user fa-2x"></i>
       </div>
       <h5 class="fw-bold mb-1">SITU Puskesmas</h5>
-      <span class="badge bg-teal text-teal mb-2 app-version-badge">v2.6.0 Pro</span>
-      <p class="text-muted small mb-0">Masukkan sandi keamanan untuk masuk aplikasi</p>
+      <span class="badge bg-teal text-teal mb-3 app-version-badge">v2.7.0 Pro</span>
 
       <form id="formAuth" onsubmit="handleAuthLogin(event)">
+        <div class="mb-3 text-start">
+          <label class="form-label small fw-bold text-muted mb-1">Pilih Hak Akses (Role)</label>
+          <select class="form-select rounded-3 border-secondary-subtle" id="selectAuthRole" required>
+            <option value="admin">Admin Tata Usaha (Full Control)</option>
+            <option value="staf">Staf / Nakes (Input &amp; Cetak SPT)</option>
+            <option value="pimpinan">Kepala Puskesmas / Monev (Read Only)</option>
+          </select>
+        </div>
+
         <div class="auth-input-group">
-          <input id="inputAuthPassword" placeholder="Ketik sandi..." required type="password"/>
+          <input id="inputAuthPassword" placeholder="Ketik sandi akses..." required type="password"/>
           <button class="auth-eye-btn" id="btnToggleEye" onclick="togglePasswordVisibility()" title="Lihat/Sembunyikan Sandi" type="button">
             <i class="fa-solid fa-eye" id="eyeIcon"></i>
           </button>
@@ -537,9 +566,9 @@
           <i class="fa-solid fa-right-to-bracket me-1"></i> Buka Aplikasi
         </button>
       </form>
-      <small class="text-muted d-block mt-3" style="font-size: 11px;">
-        <i class="fa-solid fa-shield-check text-success me-1"></i>Sandi tersimpan permanen di perangkat ini
-      </small>
+      <div class="mt-3 text-muted" style="font-size: 11px;">
+        <i class="fa-solid fa-shield-halved text-success me-1"></i>Sandi Admin: <code>kasatmata</code> | Staf: <code>nakespkm</code> | Kapus: <code>kapus123</code>
+      </div>
     </div>
   </div>
 
@@ -558,17 +587,21 @@
           <span class="fs-5 fw-bold text-white tracking-wide">SITU PKM</span>
         </div>
         <small class="text-light opacity-75 d-block text-truncate" id="sidebarPuskesmasName">UPTD Puskesmas Sampanahan</small>
+        <div class="mt-2">
+          <span class="badge bg-white bg-opacity-25 text-white" id="badgeUserRole"><i class="fa-solid fa-user-shield me-1"></i>Admin TU</span>
+        </div>
       </div>
 
       <ul class="nav flex-column mt-3" id="sidebarMenu">
         <li class="nav-item"><a class="nav-link active" onclick="switchTab('dashboard')"><i class="fa-solid fa-grid-2"></i> Dashboard TU</a></li>
         <li class="nav-item"><a class="nav-link" onclick="switchTab('surat-masuk')"><i class="fa-solid fa-inbox-in"></i> Surat Masuk</a></li>
         <li class="nav-item"><a class="nav-link" onclick="switchTab('surat-keluar')"><i class="fa-solid fa-paper-plane"></i> Surat Tugas &amp; SPPD</a></li>
+        <li class="nav-item"><a class="nav-link" onclick="switchTab('bok-spj')"><i class="fa-solid fa-file-invoice-dollar text-warning"></i> Rekap BOK / SPJ</a></li>
         <li class="nav-item"><a class="nav-link" onclick="switchTab('buku-tamu')"><i class="fa-solid fa-book-user"></i> Buku Tamu / Monev</a></li>
         <li class="nav-item"><a class="nav-link" onclick="switchTab('agenda')"><i class="fa-solid fa-calendar-range"></i> Agenda &amp; Notula</a></li>
         <li class="nav-item"><a class="nav-link" onclick="switchTab('pegawai')"><i class="fa-solid fa-user-doctor-hair"></i> Pegawai &amp; Nakes</a></li>
         <li class="nav-item"><a class="nav-link" onclick="switchTab('aset')"><i class="fa-solid fa-boxes-stacked"></i> Inventaris Sarpras</a></li>
-        <li class="nav-item"><a class="nav-link" onclick="switchTab('pengaturan')"><i class="fa-solid fa-sliders"></i> Profil &amp; Instansi</a></li>
+        <li class="nav-item" id="menuNavPengaturan"><a class="nav-link" onclick="switchTab('pengaturan')"><i class="fa-solid fa-sliders"></i> Profil &amp; Instansi</a></li>
         <li class="nav-item" id="extLinkWrapper" style="display:none;">
           <a class="nav-link text-warning" href="#" id="extAppUrl" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i> <span id="extAppName">SIMPUS Online</span></a>
         </li>
@@ -577,7 +610,7 @@
       <div class="sidebar-footer-version">
         <div class="d-flex align-items-center justify-content-between text-white-50 small mb-2">
           <span>Versi Sistem</span>
-          <span class="badge bg-white text-dark fw-bold app-version-badge">v2.6.0 Pro</span>
+          <span class="badge bg-white text-dark fw-bold app-version-badge">v2.7.0 Pro</span>
         </div>
         <button class="btn btn-sm btn-outline-light w-100 rounded-3 d-flex align-items-center justify-content-center gap-2 mb-2" onclick="checkForAppUpdates(true)">
           <i class="fa-solid fa-rotate"></i> Cek Pembaruan
@@ -598,7 +631,7 @@
           <div>
             <div class="d-flex align-items-center gap-1">
               <h6 class="m-0 fw-bold">SITU Puskesmas</h6>
-              <span class="badge bg-teal text-teal app-version-badge" style="font-size:9px;">v2.6.0</span>
+              <span class="badge bg-teal text-teal app-version-badge" style="font-size:9px;">v2.7.0</span>
             </div>
             <small class="text-muted" style="font-size: 11px;"><i class="fa-solid fa-arrows-left-right me-1 text-teal"></i>Geser layar ganti menu</small>
           </div>
@@ -618,16 +651,16 @@
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
           <div>
             <h4 class="fw-bold m-0">Dashboard Tata Usaha</h4>
-            <p class="text-muted mb-0 small">Sistem Realtime &amp; Background Sync Google Drive</p>
+            <p class="text-muted mb-0 small">Sistem Realtime, Rekap BOK/SPJ &amp; Offline Sync</p>
           </div>
           <div class="d-flex gap-2">
-            <span class="badge bg-white text-secondary border px-3 py-2 rounded-3 d-flex align-items-center gap-2 shadow-sm">
+            <span class="badge bg-white text-secondary border px-3 py-2 rounded-3 d-flex align-items-center gap-2 shadow-sm" id="liveStatusBadge">
               <i class="fa-solid fa-cloud-bolt text-teal"></i> Firestore Live
             </span>
           </div>
         </div>
 
-        <!-- 4 Stat Cards (Clickable Quick Jump) -->
+        <!-- 5 Stat Cards (Clickable Quick Jump) -->
         <div class="row g-3 mb-4">
           <div class="col-xl-3 col-sm-6">
             <div class="stat-card-gradient grad-1 shadow-sm" onclick="switchTab('pegawai')" title="Klik untuk Buka Data Pegawai">
@@ -654,15 +687,15 @@
             </div>
           </div>
           <div class="col-xl-3 col-sm-6">
-            <div class="stat-card-gradient grad-3 shadow-sm" onclick="switchTab('buku-tamu')" title="Klik untuk Buka Buku Tamu">
+            <div class="stat-card-gradient grad-5 shadow-sm" onclick="switchTab('bok-spj')" title="Klik untuk Buka Rekap BOK / SPJ">
               <div class="d-flex justify-content-between align-items-start">
                 <div>
-                  <span class="text-white-50 small fw-semibold text-uppercase">Buku Tamu / Monev</span>
-                  <h2 class="fw-extrabold m-0 mt-2" id="stat-tamu"><div class="skeleton" style="width: 50px; height: 35px;"></div></h2>
+                  <span class="text-white-50 small fw-semibold text-uppercase">SPT Anggaran BOK</span>
+                  <h2 class="fw-extrabold m-0 mt-2" id="stat-bok"><div class="skeleton" style="width: 50px; height: 35px;"></div></h2>
                 </div>
-                <div class="p-2 bg-white bg-opacity-25 rounded-3"><i class="fa-solid fa-clipboard-user fa-xl text-white"></i></div>
+                <div class="p-2 bg-white bg-opacity-25 rounded-3"><i class="fa-solid fa-file-invoice-dollar fa-xl text-white"></i></div>
               </div>
-              <small class="mt-3 d-block text-white-50"><i class="fa-solid fa-arrow-right me-1"></i> Monitoring Kunjungan</small>
+              <small class="mt-3 d-block text-white-50" id="stat-bok-detail"><i class="fa-solid fa-chart-line me-1"></i> Rekap Perjalanan Dinas Nakes</small>
             </div>
           </div>
           <div class="col-xl-3 col-sm-6">
@@ -701,6 +734,15 @@
             </div>
           </div>
           <div class="col-md-4 col-sm-6">
+            <div class="quick-action-card" onclick="switchTab('bok-spj')">
+              <div class="quick-icon-box bg-warning-subtle text-warning"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+              <div>
+                <h6 class="fw-bold m-0 text-dark">Rekap BOK &amp; SPJ</h6>
+                <small class="text-muted" style="font-size: 11px;">Frekuensi SPT &amp; Anggaran</small>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 col-sm-6">
             <div class="quick-action-card" onclick="switchTab('pegawai')">
               <div class="quick-icon-box bg-teal text-teal" style="background:#ccfbf1;"><i class="fa-solid fa-user-doctor"></i></div>
               <div>
@@ -727,15 +769,6 @@
               </div>
             </div>
           </div>
-          <div class="col-md-4 col-sm-6">
-            <div class="quick-action-card" onclick="switchTab('pengaturan')">
-              <div class="quick-icon-box bg-secondary-subtle text-secondary"><i class="fa-solid fa-sliders"></i></div>
-              <div>
-                <h6 class="fw-bold m-0 text-dark">Profil &amp; Backup</h6>
-                <small class="text-muted" style="font-size: 11px;">Kop Surat &amp; Salinan Basis Data</small>
-              </div>
-            </div>
-          </div>
         </div>
 
         <div class="row g-3">
@@ -753,34 +786,111 @@
           
           <div class="col-lg-5">
             <div class="card-pro p-4 h-100">
-              <h6 class="fw-bold mb-3"><i class="fa-solid fa-circle-plus me-2 text-warning"></i>Fitur Unggulan v2.6.0</h6>
+              <h6 class="fw-bold mb-3"><i class="fa-solid fa-circle-plus me-2 text-warning"></i>Fitur Unggulan v2.7.0</h6>
               <div class="accordion accordion-flush" id="accGuide">
                 <div class="accordion-item">
                   <h2 class="accordion-header">
-                    <button class="accordion-button collapsed px-0 py-2 small fw-semibold" data-bs-target="#g1" data-bs-toggle="collapse">1. PWA &amp; Shortcut Layar Utama</button>
+                    <button class="accordion-button collapsed px-0 py-2 small fw-semibold" data-bs-target="#g1" data-bs-toggle="collapse">1. Rekapitulasi SPJ &amp; Anggaran BOK</button>
                   </h2>
-                  <div class="accordion-collapse collapse" id="g1">
-                    <div class="accordion-body px-0 small text-muted">Aplikasi dapat diinstal langsung ke layar utama smartphone tanpa bilah browser untuk pengalaman aplikasi mandiri[span_1](start_span)[span_1](end_span).</div>
+                  <div class="accordion-collapse collapse show" id="g1">
+                    <div class="accordion-body px-0 small text-muted">Melacak otomatis frekuensi SPT per nakes dan pembebanan anggaran BOK/APBD lengkap dengan ekspor rekap SPJ dalam 1-klik.</div>
                   </div>
                 </div>
                 <div class="accordion-item">
                   <h2 class="accordion-header">
-                    <button class="accordion-button collapsed px-0 py-2 small fw-semibold" data-bs-target="#g2" data-bs-toggle="collapse">2. Scanner Cek Fisik QR Aset</button>
+                    <button class="accordion-button collapsed px-0 py-2 small fw-semibold" data-bs-target="#g2" data-bs-toggle="collapse">2. Keamanan Multi-User &amp; Hak Akses (RBAC)</button>
                   </h2>
                   <div class="accordion-collapse collapse" id="g2">
-                    <div class="accordion-body px-0 small text-muted">Gunakan tombol "Scan QR Aset" di tab Sarpras untuk memindai stiker QR barang dan langsung memperbarui status kondisinya[span_2](start_span)[span_2](end_span).</div>
+                    <div class="accordion-body px-0 small text-muted">Pemisahan peran antara Admin TU (Full), Staf Nakes (Input &amp; Cetak), dan Kepala Puskesmas (Read-Only) guna menjaga integritas berkas.</div>
                   </div>
                 </div>
                 <div class="accordion-item">
                   <h2 class="accordion-header">
-                    <button class="accordion-button collapsed px-0 py-2 small fw-semibold" data-bs-target="#g3" data-bs-toggle="collapse">3. Export Excel &amp; Backup 1-Klik</button>
+                    <button class="accordion-button collapsed px-0 py-2 small fw-semibold" data-bs-target="#g3" data-bs-toggle="collapse">3. Offline-First &amp; Kompresi Foto Dokumen</button>
                   </h2>
                   <div class="accordion-collapse collapse" id="g3">
-                    <div class="accordion-body px-0 small text-muted">Ekspor seluruh rekapan tabel sesuai filter periode Lokmin ke file .xlsx atau unduh salinan cadangan database Firestore dalam 1 klik[span_3](start_span)[span_3](end_span).</div>
+                    <div class="accordion-body px-0 small text-muted">Kompresi otomatis foto berkas di sisi perangkat &amp; antrean penyimpanan offline saat internet satelit/lokal mengalami gangguan.</div>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- View Khusus Rekap BOK / SPJ -->
+      <div class="view-section d-none" id="view-bok-spj">
+        <div class="card-pro p-4 mb-4">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+            <div>
+              <h4 class="fw-bold m-0"><i class="fa-solid fa-file-invoice-dollar me-2 text-warning"></i>Rekapitulasi SPJ &amp; Anggaran BOK</h4>
+              <small class="text-muted">Monitoring frekuensi tugas lapangan pegawai &amp; realisasi anggaran perjalanan dinas</small>
+            </div>
+            <div class="d-flex gap-2">
+              <select class="form-select form-select-sm rounded-3 border-secondary-subtle" id="filterBokPeriode" onchange="renderBokView()" style="width: auto;">
+                <option value="all">📅 Semua Periode (Tahun Ini)</option>
+                <option value="this_month">Bulan Ini</option>
+                <option value="q1">Triwulan 1 (Jan - Mar)</option>
+                <option value="q2">Triwulan 2 (Apr - Jun)</option>
+                <option value="q3">Triwulan 3 (Jul - Sep)</option>
+                <option value="q4">Triwulan 4 (Okt - Des)</option>
+              </select>
+              <button class="btn btn-success btn-sm px-3 rounded-3" onclick="exportBokToExcel()"><i class="fa-solid fa-file-excel me-1"></i> Export SPJ</button>
+              <button class="btn btn-outline-dark btn-sm px-3 rounded-3" onclick="printBokRekap()"><i class="fa-solid fa-print me-1"></i> Cetak Rekap SPJ</button>
+            </div>
+          </div>
+
+          <!-- Summary Alokasi Anggaran -->
+          <div class="row g-3 mb-4">
+            <div class="col-md-3 col-sm-6">
+              <div class="p-3 bg-light rounded-3 border">
+                <small class="text-muted fw-bold d-block">SPT DANA BOK</small>
+                <h4 class="fw-bold text-teal m-0 mt-1" id="bok-count-bok">0</h4>
+                <small class="text-muted" style="font-size: 11px;">Bantuan Operasional Kesehatan</small>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <div class="p-3 bg-light rounded-3 border">
+                <small class="text-muted fw-bold d-block">SPT DANA APBD</small>
+                <h4 class="fw-bold text-primary m-0 mt-1" id="bok-count-apbd">0</h4>
+                <small class="text-muted" style="font-size: 11px;">APBD Kabupaten</small>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <div class="p-3 bg-light rounded-3 border">
+                <small class="text-muted fw-bold d-block">SPT KAPITASI JKN</small>
+                <h4 class="fw-bold text-warning m-0 mt-1" id="bok-count-jkn">0</h4>
+                <small class="text-muted" style="font-size: 11px;">Dana Operasional Kapitasi</small>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <div class="p-3 bg-light rounded-3 border">
+                <small class="text-muted fw-bold d-block">TOTAL PERSONEL DITUGASKAN</small>
+                <h4 class="fw-bold text-dark m-0 mt-1" id="bok-count-total-personil">0</h4>
+                <small class="text-muted" style="font-size: 11px;">Akumulasi Orang/Hari (OH)</small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabel Frekuensi Perjalanan Dinas per Pegawai -->
+          <h6 class="fw-bold mb-3"><i class="fa-solid fa-users me-2 text-teal"></i>Frekuensi Perjalanan Dinas per Pegawai / Nakes</h6>
+          <div class="table-responsive rounded-3 border mb-4">
+            <table class="table table-pro align-middle m-0" id="tableBokPegawai">
+              <thead>
+                <tr>
+                  <th style="width: 50px;">No</th>
+                  <th>Nama Pegawai / Nakes</th>
+                  <th>NIP / NRPTT</th>
+                  <th>Profesi / Unit</th>
+                  <th class="text-center">Total SPT</th>
+                  <th class="text-center">BOK</th>
+                  <th class="text-center">APBD</th>
+                  <th class="text-center">JKN</th>
+                  <th class="text-center">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="tableBokPegawaiBody"></tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -813,8 +923,8 @@
               <!-- Tombol Khusus Scan QR Aset -->
               <button class="btn btn-dark btn-sm px-3 py-2 rounded-3" id="btnScanQRAset" onclick="openQRScannerModal()" style="display:none;"><i class="fa-solid fa-qrcode me-1"></i> Scan QR Aset</button>
 
-              <button class="btn btn-sm text-white px-3 py-2 rounded-3" onclick="openModalInput()" style="background:#0f766e;"><i class="fa-solid fa-plus me-1"></i> Tambah</button>
-              <button class="btn btn-outline-success btn-sm px-3 py-2 rounded-3" id="btnUploadBatch" onclick="openModalBatch()"><i class="fa-solid fa-file-excel me-1"></i> Import</button>
+              <button class="btn btn-sm text-white px-3 py-2 rounded-3 action-btn-add" onclick="openModalInput()" style="background:#0f766e;"><i class="fa-solid fa-plus me-1"></i> Tambah</button>
+              <button class="btn btn-outline-success btn-sm px-3 py-2 rounded-3 action-btn-import" id="btnUploadBatch" onclick="openModalBatch()"><i class="fa-solid fa-file-excel me-1"></i> Import</button>
               <button class="btn btn-success btn-sm px-3 py-2 rounded-3 text-white" onclick="exportCurrentTableToExcel()"><i class="fa-solid fa-file-export me-1"></i> Export Excel</button>
               <button class="btn btn-outline-dark btn-sm px-3 py-2 rounded-3" onclick="printCurrentTable()"><i class="fa-solid fa-print me-1"></i> Cetak Rekap</button>
             </div>
@@ -834,7 +944,7 @@
         <div class="card-pro p-4">
           <div class="d-flex justify-content-between align-items-center mb-1">
             <h4 class="fw-bold m-0"><i class="fa-solid fa-sliders me-2" style="color: var(--primary-teal);"></i>Profil Instansi Puskesmas</h4>
-            <span class="badge bg-teal text-teal app-version-badge">v2.6.0 Pro</span>
+            <span class="badge bg-teal text-teal app-version-badge">v2.7.0 Pro</span>
           </div>
           <p class="text-muted small mb-4">Pengaturan Kop Surat, Pejabat Penandatangan, dan Google Drive Endpoint</p>
 
@@ -890,7 +1000,7 @@
               </div>
             </div>
             <div class="mt-4 d-flex flex-wrap gap-2 justify-content-between align-items-center">
-              <button class="btn text-white px-4 py-2 rounded-3" style="background:#0f766e;" type="submit"><i class="fa-solid fa-floppy-disk me-1"></i> Simpan Profil Instansi</button>
+              <button class="btn text-white px-4 py-2 rounded-3" id="btnSaveSettings" style="background:#0f766e;" type="submit"><i class="fa-solid fa-floppy-disk me-1"></i> Simpan Profil Instansi</button>
               <div class="d-flex gap-2">
                 <button class="btn btn-outline-primary btn-sm rounded-3" onclick="backupFullDatabaseJSON()" type="button"><i class="fa-solid fa-database me-1"></i> Backup Full DB (JSON)</button>
                 <button class="btn btn-outline-secondary btn-sm rounded-3" onclick="checkForAppUpdates(true)" type="button"><i class="fa-solid fa-cloud-arrow-down me-1"></i> Cek Versi Baru</button>
@@ -904,15 +1014,15 @@
   </div>
 
   <!-- Floating Action Button (Mobile) -->
-  <div class="fab-btn" onclick="openModalInput()"><i class="fa-solid fa-plus fa-lg"></i></div>
+  <div class="fab-btn action-btn-add" onclick="openModalInput()"><i class="fa-solid fa-plus fa-lg"></i></div>
 
   <!-- Bottom Navigation Mobile -->
   <div class="mobile-bottom-nav">
     <a class="active" onclick="switchTab('dashboard')"><i class="fa-solid fa-grid-2"></i><span>Home</span></a>
     <a onclick="switchTab('surat-masuk')"><i class="fa-solid fa-envelope"></i><span>Surat</span></a>
+    <a onclick="switchTab('surat-keluar')"><i class="fa-solid fa-paper-plane"></i><span>SPT</span></a>
+    <a onclick="switchTab('bok-spj')"><i class="fa-solid fa-file-invoice-dollar"></i><span>SPJ</span></a>
     <a onclick="switchTab('pegawai')"><i class="fa-solid fa-user-doctor"></i><span>Nakes</span></a>
-    <a onclick="switchTab('aset')"><i class="fa-solid fa-boxes-stacked"></i><span>Sarpras</span></a>
-    <a onclick="switchTab('pengaturan')"><i class="fa-solid fa-sliders"></i><span>Profil</span></a>
   </div>
 
   <!-- Modal Input Data & Google Drive File Upload & OCR -->
@@ -946,7 +1056,7 @@
               </label>
               <input class="form-control form-control-sm" id="inp_file_upload" accept=".pdf,.doc,.docx,.xls,.xlsx,image/png,image/jpeg" type="file"/>
               <div class="mt-1 d-flex justify-content-between align-items-center">
-                <small class="text-muted" style="font-size: 11px;">Mendukung PDF, Word, Excel, Notula, atau Foto Kamera (Folder Drive PKM).</small>
+                <small class="text-muted" style="font-size: 11px;">Mendukung PDF, Word, Excel, Notula, atau Foto Dokumen (Otomatis Dicompress).</small>
                 <span class="badge bg-secondary-subtle text-secondary small d-none" id="cameraCapturedBadge"><i class="fa-solid fa-camera me-1"></i>Foto Kamera Siap</span>
               </div>
             </div>
@@ -1049,7 +1159,7 @@
     </div>
   </div>
 
-  <!-- Area Cetak Window.Print Dinamis (SPT Multi-Pegawai & Format Baku SPPD) -->
+  <!-- Area Cetak Window.Print Dinamis (SPT Multi-Pegawai, Format Baku SPPD, & Form Rekap SPJ) -->
   <div id="printArea">
     <div class="kop-surat">
       <img alt="Logo Pemda" id="printLogoDaerah" src=""/>
@@ -1086,9 +1196,17 @@
 
   <script>
     // ==========================================
-    // 0. REGISTRASI PWA SERVICE WORKER FISIK
+    // 0. CONFIG, PWA, MULTI-USER RBAC & OFFLINE QUEUE
     // ==========================================
-    const CURRENT_APP_VERSION = "2.6.0"; 
+    const CURRENT_APP_VERSION = "2.7.0";
+
+    const USER_ROLES = {
+      admin: { pass: "kasatmata", label: "Admin TU (Full)", canEdit: true, canDelete: true, canConfig: true },
+      staf: { pass: "nakespkm", label: "Staf Nakes (Input & Cetak)", canEdit: true, canDelete: false, canConfig: false },
+      pimpinan: { pass: "kapus123", label: "Kepala Puskesmas (Monev)", canEdit: false, canDelete: false, canConfig: false }
+    };
+
+    let currentUserRole = "admin";
 
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
@@ -1098,9 +1216,26 @@
       });
     }
 
+    // Network Online/Offline Listeners
+    window.addEventListener("online", () => {
+      document.getElementById("offlineBanner").style.display = "none";
+      const statusBadge = document.getElementById("liveStatusBadge");
+      if (statusBadge) statusBadge.innerHTML = '<i class="fa-solid fa-cloud-bolt text-teal"></i> Firestore Live';
+      syncOfflineQueue();
+    });
+
+    window.addEventListener("offline", () => {
+      document.getElementById("offlineBanner").style.display = "block";
+      const statusBadge = document.getElementById("liveStatusBadge");
+      if (statusBadge) statusBadge.innerHTML = '<i class="fa-solid fa-wifi-slash text-danger"></i> Mode Offline';
+    });
+
     function checkAuthStatus() {
       const isAuth = localStorage.getItem("SITU_AUTH_PERSISTENT");
+      const savedRole = localStorage.getItem("SITU_USER_ROLE") || "admin";
       if (isAuth === "true") {
+        currentUserRole = savedRole;
+        applyRolePermissions();
         document.getElementById("authLockScreen").style.display = "none";
       } else {
         document.getElementById("authLockScreen").style.display = "flex";
@@ -1121,18 +1256,40 @@
       }
     }
 
-    const APP_PASSWORD = "kasatmata";
-
     function handleAuthLogin(e) {
       e.preventDefault();
+      const selectedRole = document.getElementById("selectAuthRole").value;
       const enteredPwd = document.getElementById("inputAuthPassword").value;
-      if (enteredPwd === APP_PASSWORD) {
+      const roleConfig = USER_ROLES[selectedRole];
+
+      if (roleConfig && enteredPwd === roleConfig.pass) {
+        currentUserRole = selectedRole;
         localStorage.setItem("SITU_AUTH_PERSISTENT", "true");
+        localStorage.setItem("SITU_USER_ROLE", selectedRole);
+        applyRolePermissions();
         document.getElementById("authLockScreen").style.display = "none";
-        Swal.fire({ icon: "success", title: "Berhasil Masuk", text: "Sandi tersimpan permanen di perangkat ini.", timer: 1200, showConfirmButton: false });
+        Swal.fire({ icon: "success", title: "Berhasil Masuk", text: `Masuk sebagai: ${roleConfig.label}`, timer: 1300, showConfirmButton: false });
       } else {
-        Swal.fire({ icon: "error", title: "Sandi Salah", text: "Silakan periksa kembali sandi Anda." });
+        Swal.fire({ icon: "error", title: "Sandi Salah", text: `Sandi untuk hak akses ${roleConfig ? roleConfig.label : ''} tidak sesuai.` });
       }
+    }
+
+    function applyRolePermissions() {
+      const role = USER_ROLES[currentUserRole] || USER_ROLES.admin;
+      const badgeRole = document.getElementById("badgeUserRole");
+      if (badgeRole) badgeRole.innerHTML = `<i class="fa-solid fa-user-shield me-1"></i>${role.label}`;
+
+      // Show/Hide menu profil instansi
+      const menuPengaturan = document.getElementById("menuNavPengaturan");
+      if (menuPengaturan) menuPengaturan.style.display = role.canConfig ? "block" : "none";
+
+      // Toggle tombol aksi tambah & import
+      document.querySelectorAll(".action-btn-add").forEach(el => {
+        el.style.display = role.canEdit ? "inline-flex" : "none";
+      });
+      document.querySelectorAll(".action-btn-import").forEach(el => {
+        el.style.display = role.canConfig ? "inline-block" : "none";
+      });
     }
 
     function logoutApp() {
@@ -1165,16 +1322,14 @@
       return false;
     }
 
-    // Engine Pengecekan Versi Otomatis (Aman & Sinkron)
     function checkForAppUpdates(isManualCheck = false) {
-      if (!db) return;
+      if (!db || !navigator.onLine) return;
       
       db.collection("SystemConfig").doc("AppVersion").get().then((doc) => {
         if (doc.exists) {
           const serverVer = doc.data().latestVersion || CURRENT_APP_VERSION;
-          const changelog = doc.data().changelog || "Peningkatan performa, scanner QR Aset, Export Excel & PWA.";
+          const changelog = doc.data().changelog || "Pembaruan fitur BOK SPJ, Keamanan Multi-User & Offline Cache.";
 
-          // Hanya munculkan popup jika versi di server BENAR-BENAR lebih baru dari aplikasi
           if (isNewerVersion(serverVer, CURRENT_APP_VERSION)) {
             Swal.fire({
               title: "Pembaruan Tersedia!",
@@ -1195,11 +1350,10 @@
               }
             });
           } else {
-            // Jika aplikasi lokal lebih baru/sama, otomatis perbarui database Firestore
             if (serverVer !== CURRENT_APP_VERSION) {
               db.collection("SystemConfig").doc("AppVersion").set({
                 latestVersion: CURRENT_APP_VERSION,
-                changelog: "Rilis v2.6.0: PWA Shortcut Layar Utama, Scanner Cek Fisik QR Aset, Export Excel & Backup 1-Klik.",
+                changelog: "Rilis v2.7.0: Rekap BOK/SPJ Otomatis, Role Multi-User RBAC, Client Compression & Offline Queue Sync.",
                 updatedAt: new Date().toISOString()
               });
             }
@@ -1214,13 +1368,6 @@
               });
             }
           }
-        } else {
-          // Buat record versi jika belum ada di Firestore
-          db.collection("SystemConfig").doc("AppVersion").set({
-            latestVersion: CURRENT_APP_VERSION,
-            changelog: "Rilis v2.6.0: PWA Shortcut Layar Utama, Scanner Cek Fisik QR Aset, Export Excel & Backup 1-Klik.",
-            updatedAt: new Date().toISOString()
-          });
         }
       }).catch(err => {
         if (isManualCheck) Swal.fire("Info", "Tidak dapat terhubung ke server pembaruan.", "info");
@@ -1262,7 +1409,7 @@
     let CURRENT_TAB = "dashboard";
     let chartInstance = null;
     
-    const TAB_FLOW = ["dashboard", "surat-masuk", "surat-keluar", "buku-tamu", "agenda", "pegawai", "aset", "pengaturan"];
+    const TAB_FLOW = ["dashboard", "surat-masuk", "surat-keluar", "bok-spj", "buku-tamu", "agenda", "pegawai", "aset", "pengaturan"];
 
     // Camera & QR Scanner States
     let currentStream = null;
@@ -1312,7 +1459,7 @@
     };
 
     // ==========================================
-    // 3. BACKGROUND TASK TOAST UI
+    // 3. BACKGROUND TASK TOAST & OFFLINE QUEUE
     // ==========================================
     function createBackgroundTaskToast(id, initialText) {
       const container = document.getElementById("bgTaskContainer");
@@ -1361,12 +1508,92 @@
       }, 3500);
     }
 
+    function saveOfflineAction(collection, actionType, docId, payload) {
+      let queue = JSON.parse(localStorage.getItem("SITU_OFFLINE_QUEUE") || "[]");
+      queue.push({ id: "OFF-" + Date.now(), collection, actionType, docId, payload, timestamp: new Date().toISOString() });
+      localStorage.setItem("SITU_OFFLINE_QUEUE", JSON.stringify(queue));
+      
+      // Update local array agar langsung terasa responsif
+      if (actionType === 'add') {
+        SITU_DATA[collection].unshift({ id: "LOCAL-" + Date.now(), ...payload });
+      }
+      renderDashboard();
+      if (CURRENT_TAB === 'bok-spj') renderBokView();
+      else if (CURRENT_TAB !== 'dashboard' && CURRENT_TAB !== 'pengaturan') renderCrudView(CURRENT_TAB);
+    }
+
+    async function syncOfflineQueue() {
+      if (!db || !navigator.onLine) return;
+      let queue = JSON.parse(localStorage.getItem("SITU_OFFLINE_QUEUE") || "[]");
+      if (queue.length === 0) return;
+
+      const toastId = "SYNC-" + Date.now();
+      createBackgroundTaskToast(toastId, `Menyinkronkan ${queue.length} antrean data offline ke cloud...`);
+
+      let successCount = 0;
+      for (const item of queue) {
+        try {
+          if (item.actionType === 'add') {
+            await db.collection(item.collection).add(item.payload);
+          } else if (item.actionType === 'update' && item.docId) {
+            await db.collection(item.collection).doc(item.docId).update(item.payload);
+          } else if (item.actionType === 'delete' && item.docId) {
+            await db.collection(item.collection).doc(item.docId).delete();
+          }
+          successCount++;
+        } catch (e) {
+          console.error("Gagal sync offline item:", e);
+        }
+      }
+
+      localStorage.removeItem("SITU_OFFLINE_QUEUE");
+      updateBackgroundTaskToast(toastId, true, `${successCount} perubahan offline berhasil disinkronkan ke Firestore.`);
+    }
+
     // ==========================================
-    // 4. INIT ENGINE & TOUCH SWIPE GESTURES
+    // 4. CLIENT-SIDE IMAGE COMPRESSION ENGINE
+    // ==========================================
+    async function compressImageBlob(fileOrBlob, maxWidth = 1280, quality = 0.75) {
+      return new Promise((resolve) => {
+        if (!fileOrBlob.type.startsWith('image/')) {
+          return resolve(fileOrBlob); // Lewati jika file PDF/Doc
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            let width = img.width;
+            let height = img.height;
+
+            if (width > maxWidth) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+
+            canvas.toBlob((blob) => {
+              resolve(blob || fileOrBlob);
+            }, 'image/jpeg', quality);
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(fileOrBlob);
+      });
+    }
+
+    // ==========================================
+    // 5. INIT ENGINE & TOUCH SWIPE GESTURES
     // ==========================================
     window.addEventListener("DOMContentLoaded", () => {
       checkAuthStatus();
       loadSettingsToUI();
+      loadCachedData();
       initFirebase();
       initTouchSwipeGestures();
 
@@ -1387,6 +1614,16 @@
         if (qrStream) closeQRScannerModal();
       });
     });
+
+    function loadCachedData() {
+      const cached = localStorage.getItem("SITU_OFFLINE_CACHE");
+      if (cached) {
+        try {
+          SITU_DATA = JSON.parse(cached);
+          renderDashboard();
+        } catch(e) {}
+      }
+    }
 
     function initTouchSwipeGestures() {
       let touchStartX = 0;
@@ -1438,7 +1675,7 @@
         attachRealtimeListeners();
         setTimeout(() => checkForAppUpdates(false), 2000);
       } catch (err) {
-        console.warn("Firestore running in preview mode:", err);
+        console.warn("Firestore running in preview/offline mode:", err);
       }
     }
 
@@ -1462,12 +1699,15 @@
           }
 
           SITU_DATA[colName] = list;
+          localStorage.setItem("SITU_OFFLINE_CACHE", JSON.stringify(SITU_DATA));
 
           // Selalu update angka ringkasan di dashboard
           renderDashboard();
 
           // Jika sedang berada di tab terkait, update tabelnya
-          if (CURRENT_TAB !== "dashboard" && CURRENT_TAB !== "pengaturan") {
+          if (CURRENT_TAB === "bok-spj") {
+            renderBokView();
+          } else if (CURRENT_TAB !== "dashboard" && CURRENT_TAB !== "pengaturan") {
             renderCrudView(CURRENT_TAB);
           }
         });
@@ -1489,6 +1729,10 @@
         targetView = document.getElementById("view-dashboard");
         targetView.classList.remove("d-none");
         renderDashboard();
+      } else if (tabId === "bok-spj") {
+        targetView = document.getElementById("view-bok-spj");
+        targetView.classList.remove("d-none");
+        renderBokView();
       } else if (tabId === "pengaturan") {
         targetView = document.getElementById("view-pengaturan");
         targetView.classList.remove("d-none");
@@ -1504,20 +1748,23 @@
     }
 
     // ==========================================
-    // 5. DASHBOARD RENDER & CHARTS
+    // 6. DASHBOARD RENDER & CHARTS
     // ==========================================
     function renderDashboard() {
       const jmlPegawai = (SITU_DATA.PegawaiNakes || []).length;
       const jmlSuratMasuk = (SITU_DATA.SuratMasuk || []).length;
       const jmlSuratKeluar = (SITU_DATA.SuratKeluar || []).length;
       const jmlSurat = jmlSuratMasuk + jmlSuratKeluar;
-      const jmlTamu = (SITU_DATA.BukuTamu || []).length;
       const jmlAset = (SITU_DATA.InventarisAset || []).length;
+
+      // Hitung SPT dengan Beban Anggaran BOK
+      const sptBokList = (SITU_DATA.SuratKeluar || []).filter(s => (s.BebanAnggaran || "").toLowerCase().includes("bok"));
 
       const statPegawaiEl = document.getElementById("stat-pegawai");
       const statSuratEl = document.getElementById("stat-surat");
       const statSuratDetailEl = document.getElementById("stat-surat-detail");
-      const statTamuEl = document.getElementById("stat-tamu");
+      const statBokEl = document.getElementById("stat-bok");
+      const statBokDetailEl = document.getElementById("stat-bok-detail");
       const statAsetEl = document.getElementById("stat-aset");
 
       if (statPegawaiEl) statPegawaiEl.innerText = jmlPegawai;
@@ -1525,7 +1772,10 @@
       if (statSuratDetailEl) {
         statSuratDetailEl.innerHTML = `<i class="fa-solid fa-file-pdf me-1"></i> Masuk: <b>${jmlSuratMasuk}</b> | Keluar/SPT: <b>${jmlSuratKeluar}</b>`;
       }
-      if (statTamuEl) statTamuEl.innerText = jmlTamu;
+      if (statBokEl) statBokEl.innerText = sptBokList.length;
+      if (statBokDetailEl) {
+        statBokDetailEl.innerHTML = `<i class="fa-solid fa-chart-line me-1"></i> ${sptBokList.length} dari ${jmlSuratKeluar} SPT didanai BOK`;
+      }
       if (statAsetEl) statAsetEl.innerText = jmlAset;
 
       let perawat = 0, bidan = 0, dokter = 0, stafLain = 0;
@@ -1565,14 +1815,259 @@
     }
 
     // ==========================================
-    // 6. CRUD VIEW, PERIOD FILTER, QR CODE, & EXPIRY BADGES
+    // 7. REKAPITULASI BOK / SPJ ENGINE
+    // ==========================================
+    function getFilteredSPTForBOK() {
+      const allSPT = SITU_DATA.SuratKeluar || [];
+      const periode = document.getElementById("filterBokPeriode") ? document.getElementById("filterBokPeriode").value : "all";
+      const currentYear = new Date().getFullYear();
+
+      return allSPT.filter(spt => {
+        const dateVal = spt.TglSurat;
+        if (!dateVal) return true;
+
+        const rowDate = new Date(dateVal);
+        const rowMonth = rowDate.getMonth() + 1;
+        const rowYear = rowDate.getFullYear();
+
+        if (rowYear !== currentYear) return false;
+
+        if (periode === 'this_month') return rowMonth === (new Date().getMonth() + 1);
+        if (periode === 'q1') return rowMonth >= 1 && rowMonth <= 3;
+        if (periode === 'q2') return rowMonth >= 4 && rowMonth <= 6;
+        if (periode === 'q3') return rowMonth >= 7 && rowMonth <= 9;
+        if (periode === 'q4') return rowMonth >= 10 && rowMonth <= 12;
+        return true;
+      });
+    }
+
+    function renderBokView() {
+      const filteredSPT = getFilteredSPTForBOK();
+      const allPegawai = SITU_DATA.PegawaiNakes || [];
+
+      let countBOK = 0, countAPBD = 0, countJKN = 0, totalPersonil = 0;
+      let pegawaiStats = {};
+
+      allPegawai.forEach(p => {
+        pegawaiStats[p.Nama] = {
+          detail: p,
+          totalSPT: 0,
+          bok: 0,
+          apbd: 0,
+          jkn: 0,
+          sptList: []
+        };
+      });
+
+      filteredSPT.forEach(spt => {
+        const anggaran = (spt.BebanAnggaran || "").toLowerCase();
+        const petugas = Array.isArray(spt.PetugasDitugaskan) ? spt.PetugasDitugaskan : [spt.PetugasDitugaskan || ""];
+        
+        if (anggaran.includes("bok")) countBOK++;
+        else if (anggaran.includes("apbd")) countAPBD++;
+        else if (anggaran.includes("jkn") || anggaran.includes("kapitasi")) countJKN++;
+
+        totalPersonil += petugas.length;
+
+        petugas.forEach(nama => {
+          if (nama) {
+            if (!pegawaiStats[nama]) {
+              pegawaiStats[nama] = {
+                detail: { Nama: nama, NIP_NRPTT: "-", Profesi: "Staf Terkait" },
+                totalSPT: 0,
+                bok: 0,
+                apbd: 0,
+                jkn: 0,
+                sptList: []
+              };
+            }
+
+            pegawaiStats[nama].totalSPT++;
+            pegawaiStats[nama].sptList.push(spt);
+
+            if (anggaran.includes("bok")) pegawaiStats[nama].bok++;
+            else if (anggaran.includes("apbd")) pegawaiStats[nama].apbd++;
+            else if (anggaran.includes("jkn") || anggaran.includes("kapitasi")) pegawaiStats[nama].jkn++;
+          }
+        });
+      });
+
+      document.getElementById("bok-count-bok").innerText = countBOK;
+      document.getElementById("bok-count-apbd").innerText = countAPBD;
+      document.getElementById("bok-count-jkn").innerText = countJKN;
+      document.getElementById("bok-count-total-personil").innerText = totalPersonil + " OH";
+
+      const tbody = document.getElementById("tableBokPegawaiBody");
+      tbody.innerHTML = "";
+
+      const sortedPegawai = Object.values(pegawaiStats).sort((a, b) => b.totalSPT - a.totalSPT);
+
+      if (sortedPegawai.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-muted small">Belum ada rekaman surat tugas/SPT pada periode ini.</td></tr>`;
+        return;
+      }
+
+      sortedPegawai.forEach((item, idx) => {
+        const p = item.detail;
+        tbody.innerHTML += `
+          <tr>
+            <td class="text-muted fw-semibold">${idx + 1}</td>
+            <td>
+              <div class="d-flex align-items-center">
+                <span class="avatar-initials">${p.Nama.substring(0, 2).toUpperCase()}</span>
+                <div>
+                  <span class="fw-bold d-block">${p.Nama}</span>
+                  <small class="text-muted">${p.PangkatGol || '-'}</small>
+                </div>
+              </div>
+            </td>
+            <td>${p.NIP_NRPTT || '-'}</td>
+            <td>${p.Profesi || '-'}</td>
+            <td class="text-center"><span class="badge bg-dark px-2 py-1 rounded-pill">${item.totalSPT} Kali</span></td>
+            <td class="text-center"><span class="badge bg-teal text-teal px-2 py-1 rounded-pill">${item.bok}</span></td>
+            <td class="text-center"><span class="badge bg-primary-subtle text-primary px-2 py-1 rounded-pill">${item.apbd}</span></td>
+            <td class="text-center"><span class="badge bg-warning-subtle text-warning px-2 py-1 rounded-pill">${item.jkn}</span></td>
+            <td class="text-center">
+              <button class="btn btn-outline-teal btn-sm border-0" onclick="showPegawaiSPTDetail('${p.Nama}')" title="Lihat Rincian SPT"><i class="fa-solid fa-list-check"></i></button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function showPegawaiSPTDetail(nama) {
+      const filteredSPT = getFilteredSPTForBOK();
+      const list = filteredSPT.filter(s => {
+        const pList = Array.isArray(s.PetugasDitugaskan) ? s.PetugasDitugaskan : [s.PetugasDitugaskan];
+        return pList.includes(nama);
+      });
+
+      if (list.length === 0) {
+        return Swal.fire("Info", `Tidak ada tugas dinas untuk ${nama} pada periode yang dipilih.`, "info");
+      }
+
+      let tableHtml = `
+        <div class="text-start mb-3"><b>Petugas:</b> ${nama}</div>
+        <div class="table-responsive">
+          <table class="table table-sm table-bordered" style="font-size: 12px;">
+            <thead class="table-light">
+              <tr>
+                <th>No SPT</th>
+                <th>Tanggal</th>
+                <th>Tujuan</th>
+                <th>Perihal</th>
+                <th>Anggaran</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${list.map(s => `
+                <tr>
+                  <td><b>${s.NoSurat}</b></td>
+                  <td>${s.TglSurat}</td>
+                  <td>${s.Tujuan}</td>
+                  <td>${s.Perihal}</td>
+                  <td><span class="badge bg-light text-dark border">${s.BebanAnggaran || 'BOK'}</span></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+
+      Swal.fire({
+        title: "Riwayat SPT & SPJ Pegawai",
+        html: tableHtml,
+        width: 700,
+        confirmButtonColor: "#0f766e",
+        confirmButtonText: "Tutup"
+      });
+    }
+
+    function exportBokToExcel() {
+      const filteredSPT = getFilteredSPTForBOK();
+      if (filteredSPT.length === 0) {
+        return Swal.fire("Data Kosong", "Tidak ada data SPT pada periode ini.", "warning");
+      }
+
+      let rowsExport = [];
+      filteredSPT.forEach((s, idx) => {
+        const petugas = Array.isArray(s.PetugasDitugaskan) ? s.PetugasDitugaskan.join(", ") : (s.PetugasDitugaskan || "-");
+        rowsExport.push({
+          "No": idx + 1,
+          "No SPT": s.NoSurat,
+          "Tanggal Pelaksanaan": s.TglSurat,
+          "Maksud Tugas / Perihal": s.Perihal,
+          "Tujuan / Desa": s.Tujuan,
+          "Pegawai Ditugaskan": petugas,
+          "Dasar Pelaksanaan": s.DasarTugas || "-",
+          "Beban Anggaran": s.BebanAnggaran || "BOK Puskesmas"
+        });
+      });
+
+      const ws = XLSX.utils.json_to_sheet(rowsExport);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Rekap_SPJ_BOK");
+      XLSX.writeFile(wb, `Rekapitulasi_SPJ_BOK_${Date.now()}.xlsx`);
+      Swal.fire({ icon: "success", title: "Berhasil Diekspor", text: "Rekapitulasi SPJ berhasil diunduh.", timer: 1500, showConfirmButton: false });
+    }
+
+    function printBokRekap() {
+      setupPrintKop();
+      const filteredSPT = getFilteredSPTForBOK();
+      const s = JSON.parse(localStorage.getItem("SITU_PKM_SETTINGS") || JSON.stringify(DEFAULT_PROFILE));
+
+      let rowsHtml = filteredSPT.map((spt, idx) => {
+        const petugas = Array.isArray(spt.PetugasDitugaskan) ? spt.PetugasDitugaskan.join("<br/>• ") : (spt.PetugasDitugaskan || "-");
+        return `
+          <tr>
+            <td style="text-align:center;">${idx + 1}</td>
+            <td><b>${spt.NoSurat}</b><br/><small>${spt.TglSurat}</small></td>
+            <td>• ${petugas}</td>
+            <td>${spt.Perihal}</td>
+            <td>${spt.Tujuan}</td>
+            <td style="text-align:center;"><b>${spt.BebanAnggaran || 'BOK Puskesmas'}</b></td>
+          </tr>
+        `;
+      }).join('');
+
+      let html = `
+        <h4 style="text-align:center; font-weight:bold; margin-bottom:4px; text-transform:uppercase;">REKAPITULASI SURAT TUGAS &amp; REALISASI ANGGARAN SPJ BOK</h4>
+        <p style="text-align:center; font-size:9.5pt; margin-bottom:15px;" class="text-muted">Tahun Anggaran Berjalan - UPTD Puskesmas</p>
+        <table class="table-print-bordered mb-4" style="font-size: 9pt;">
+          <thead>
+            <tr style="background:#f1f5f9;">
+              <th style="width:30px; text-align:center;">No</th>
+              <th style="width:130px;">Nomor SPT &amp; Tanggal</th>
+              <th>Nama Pegawai / Pelaksana</th>
+              <th>Maksud Tugas / Kegiatan</th>
+              <th>Tujuan / Lokasi</th>
+              <th style="width:110px; text-align:center;">Pembebanan</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rowsHtml || '<tr><td colspan="6" style="text-align:center;">Tidak ada data tugas pada filter ini.</td></tr>'}
+          </tbody>
+        </table>
+      `;
+
+      document.getElementById("printContent").innerHTML = html;
+      const style = document.createElement('style');
+      style.innerHTML = `@page { size: landscape; margin: 10mm; }`;
+      document.head.appendChild(style);
+
+      window.print();
+      setTimeout(() => { document.head.removeChild(style); }, 1000);
+    }
+
+    // ==========================================
+    // 8. CRUD VIEW, PERIOD FILTER, QR CODE, & EXPIRY BADGES
     // ==========================================
     function renderCrudView(tabId) {
       const config = SCHEMA[tabId];
       if (!config) return;
 
       document.getElementById("crudTitle").innerText = config.title;
-      document.getElementById("btnUploadBatch").style.display = (tabId === "pegawai" || tabId === "aset") ? "inline-block" : "none";
+      document.getElementById("btnUploadBatch").style.display = (tabId === "pegawai" || tabId === "aset") && USER_ROLES[currentUserRole].canConfig ? "inline-block" : "none";
       document.getElementById("btnScanQRAset").style.display = (tabId === "aset") ? "inline-block" : "none";
       document.getElementById("liveSearchInput").value = "";
       document.getElementById("filterPeriodeSelect").value = "all";
@@ -1597,6 +2092,8 @@
         tbody.innerHTML = `<tr><td colspan="${config.columns.length + 2}" class="text-center py-4 text-muted small"><i class="fa-regular fa-folder-open fa-2x mb-2 d-block opacity-50"></i>Belum ada data rekaman di database.</td></tr>`;
         return;
       }
+
+      const role = USER_ROLES[currentUserRole] || USER_ROLES.admin;
 
       rows.forEach((r, idx) => {
         let tr = `<tr><td class="text-muted fw-semibold">${idx + 1}</td>`;
@@ -1654,11 +2151,14 @@
           extraBtns = `<button class="btn btn-outline-dark border-0" onclick="printQR('${r.KodeBarang}', '${r.NamaBarang}', '${r.RuanganLokasi || r.LokasiRuang || ''}')" title="Cetak Label QR"><i class="fa-solid fa-qrcode"></i></button>`;
         }
 
+        let editBtn = role.canEdit ? `<button class="btn btn-outline-primary border-0" onclick="editRecord('${CURRENT_TAB}', '${r.id}')"><i class="fa-solid fa-pen"></i></button>` : '';
+        let deleteBtn = role.canDelete ? `<button class="btn btn-outline-danger border-0" onclick="deleteRecord('${CURRENT_TAB}', '${r.id}')"><i class="fa-solid fa-trash"></i></button>` : '';
+
         tr += `<td class='text-center'>
           <div class="btn-group btn-group-sm">
             ${extraBtns}
-            <button class="btn btn-outline-primary border-0" onclick="editRecord('${CURRENT_TAB}', '${r.id}')"><i class="fa-solid fa-pen"></i></button>
-            <button class="btn btn-outline-danger border-0" onclick="deleteRecord('${CURRENT_TAB}', '${r.id}')"><i class="fa-solid fa-trash"></i></button>
+            ${editBtn}
+            ${deleteBtn}
           </div>
         </td></tr>`;
         tbody.innerHTML += tr;
@@ -1705,7 +2205,7 @@
     }
 
     // ==========================================
-    // 7. EXPORT TO EXCEL & BACKUP DATABASE FULL
+    // 9. EXPORT TO EXCEL & BACKUP DATABASE FULL
     // ==========================================
     function exportCurrentTableToExcel() {
       const config = SCHEMA[CURRENT_TAB];
@@ -1762,7 +2262,7 @@
     }
 
     // ==========================================
-    // 8. SCANNER QR CODE REALTIME ASET (STOK OPNAME)
+    // 10. SCANNER QR CODE REALTIME ASET (STOK OPNAME)
     // ==========================================
     function openQRScannerModal() {
       const qrModalEl = document.getElementById("qrScannerModal");
@@ -1864,7 +2364,7 @@
     }
 
     // ==========================================
-    // 9. KAMERA PINTAR & OCR LIFECYCLE MANAGEMENT
+    // 11. KAMERA PINTAR & OCR LIFECYCLE MANAGEMENT
     // ==========================================
     function openCameraScanner() {
       capturedBlob = null;
@@ -1921,7 +2421,8 @@
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
       canvas.toBlob(async (blob) => {
-        capturedBlob = blob;
+        // Compress blob before further handling
+        capturedBlob = await compressImageBlob(blob, 1280, 0.8);
         closeCameraScanner();
 
         Swal.fire({
@@ -1968,7 +2469,7 @@
         };
 
         if (bulanMap[monthStr]) month = bulanMap[monthStr];
-        else if (!isNaN(parseIntmonthStr)) month = monthStr.padStart(2, '0');
+        else if (!isNaN(parseInt(monthStr))) month = monthStr.padStart(2, '0');
 
         const formattedDate = `${year}-${month}-${day}`;
         if (document.getElementById("inp_TglSurat")) document.getElementById("inp_TglSurat").value = formattedDate;
@@ -1985,17 +2486,20 @@
     }
 
     // ==========================================
-    // 10. GOOGLE DRIVE ASYNC UPLOAD BRIDGE
+    // 12. GOOGLE DRIVE ASYNC UPLOAD BRIDGE
     // ==========================================
     async function uploadBlobToGoogleDrive(fileOrBlob, fileName) {
       const s = JSON.parse(localStorage.getItem("SITU_PKM_SETTINGS") || JSON.stringify(DEFAULT_PROFILE));
       const gasEndpoint = s.gasUrl || DEFAULT_PROFILE.gasUrl;
 
+      // Kompresi otomatis gambar sebelum upload
+      const readyBlob = await compressImageBlob(fileOrBlob, 1280, 0.75);
+
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = async () => {
           const base64 = reader.result.split(',')[1];
-          const payload = { base64: base64, fileName: fileName, mimeType: fileOrBlob.type || "image/jpeg" };
+          const payload = { base64: base64, fileName: fileName, mimeType: readyBlob.type || "image/jpeg" };
 
           try {
             const response = await fetch(gasEndpoint, { method: "POST", body: JSON.stringify(payload) });
@@ -2006,12 +2510,12 @@
             reject(e.toString());
           }
         };
-        reader.readAsDataURL(fileOrBlob);
+        reader.readAsDataURL(readyBlob);
       });
     }
 
     // ==========================================
-    // 11. NON-BLOCKING BACKGROUND SAVE ENGINE
+    // 13. NON-BLOCKING BACKGROUND SAVE & OFFLINE QUEUE
     // ==========================================
     function openModalInput() {
       stopCameraStream();
@@ -2104,7 +2608,6 @@
 
     function handleSingleSave(e) {
       e.preventDefault();
-      if (!db) return Swal.fire("Mode Terbatas", "Firebase belum terhubung aktif.", "warning");
 
       const config = SCHEMA[CURRENT_TAB];
       const formData = new FormData(e.target);
@@ -2128,6 +2631,20 @@
       const taskId = "TASK-" + Date.now();
 
       bootstrap.Modal.getInstance(document.getElementById("crudModal")).hide();
+
+      // Jika offline, simpan di queue
+      if (!navigator.onLine || !db) {
+        saveOfflineAction(targetCollection, docId ? 'update' : 'add', docId, payload);
+        Swal.fire({
+          icon: "info",
+          title: "Disimpan Lokal (Offline)",
+          text: "Data akan otomatis disinkronkan ke server saat internet online kembali.",
+          timer: 1800,
+          showConfirmButton: false
+        });
+        return;
+      }
+
       createBackgroundTaskToast(taskId, `Menyimpan data ${config.title}...`);
 
       (async () => {
@@ -2156,6 +2673,10 @@
     }
 
     async function deleteRecord(tabId, docId) {
+      if (!USER_ROLES[currentUserRole].canDelete) {
+        return Swal.fire("Akses Ditolak", "Hak akses Anda tidak diizinkan menghapus arsip.", "warning");
+      }
+
       const config = SCHEMA[tabId];
       Swal.fire({
         title: "Konfirmasi Hapus?",
@@ -2166,6 +2687,10 @@
         confirmButtonText: "Ya, Hapus"
       }).then(async (res) => {
         if (res.isConfirmed) {
+          if (!navigator.onLine || !db) {
+            saveOfflineAction(config.collection, 'delete', docId, {});
+            return;
+          }
           try {
             await db.collection(config.collection).doc(docId).delete();
             Swal.fire({ icon: "success", title: "Terhapus", timer: 1200, showConfirmButton: false });
@@ -2177,7 +2702,7 @@
     }
 
     // ==========================================
-    // 12. BATCH UPLOAD EXCEL
+    // 14. BATCH UPLOAD EXCEL
     // ==========================================
     function openModalBatch() {
       new bootstrap.Modal(document.getElementById("batchModal")).show();
@@ -2230,7 +2755,7 @@
     }
 
     // ==========================================
-    // 13. SETTINGS & PROFILE MANAGEMENT
+    // 15. SETTINGS & PROFILE MANAGEMENT
     // ==========================================
     function loadSettingsToUI() {
       const s = JSON.parse(localStorage.getItem("SITU_PKM_SETTINGS") || JSON.stringify(DEFAULT_PROFILE));
@@ -2278,7 +2803,7 @@
     }
 
     // ==========================================
-    // 14. HIGH-DEFINITION PRINT ENGINE (SPT & SPPD)
+    // 16. HIGH-DEFINITION PRINT ENGINE (SPT & SPPD)
     // ==========================================
     function setupPrintKop() {
       const s = JSON.parse(localStorage.getItem("SITU_PKM_SETTINGS") || JSON.stringify(DEFAULT_PROFILE));
